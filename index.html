@@ -94,8 +94,8 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://zidcmnlzkkxpqppsewez.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppZGNtbmx6a2t4cHFwcHNld2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MjUzOTEsImV4cCI6MjA3ODIwMTM5MX0.efCuHW2BhkigAqkkwAqUrysw9sW1UuN1Yseuthp_D3Q';
+    const SUPABASE_URL = 'https://acyozmmvrtvevbssoghh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let user = null;
@@ -109,7 +109,7 @@
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: 'https://orbicxs-1-0.vercel.app' }
+        options: { emailRedirectTo: 'https://orbicxs-1-1-0.vercel.app' }
       });
 
       if (error) return status(error.message, "error");
