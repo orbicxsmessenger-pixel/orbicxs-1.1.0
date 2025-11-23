@@ -9,20 +9,40 @@
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
     body{background:#f0f2f5;display:flex;justify-content:center;min-height:100vh;}
-    .app{width:100%;max-width:400px;background:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-    .header{background:#0088cc;color:white;padding:16px;font-weight:500;font-size:18px;text-align:center;}
+    .app{width:100%;max-width:400px;background:white;height:100vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.1);}
+    .header{background:#0088cc;color:white;padding:16px;font-weight:500;font-size:18px;text-align:center;position:relative;}
+    .header .back{cursor:pointer;position:absolute;left:16px;top:16px;font-size:24px;}
     .content{padding:40px 24px;text-align:center;}
     input{width:100%;padding:16px;margin:12px 0;border:1px solid #ddd;border-radius:12px;font-size:17px;}
     button{width:100%;padding:16px;background:#0088cc;color:white;border:none;border-radius:12px;font-size:17px;cursor:pointer;}
     .status{margin-top:15px;font-size:15px;}
     .error{color:#ff4444;}
     .hidden{display:none;}
+
+    /* QIDIRUV VA CHAT ROʻYXATI */
+    .search{padding:12px;background:white;border-bottom:1px solid #eee;}
+    .search input{width:100%;padding:14px 20px;border-radius:30px;border:none;background:#f0f2f5;font-size:16px;outline:none;}
+    .chat-list{flex:1;overflow-y:auto;background:#fafafa;}
+    .chat-item{padding:14px 16px;display:flex;align-items:center;cursor:pointer;border-bottom:1px solid #eee;position:relative;}
+    .chat-item:hover{background:#f0f0f0;}
+    .chat-item img{width:50px;height:50px;border-radius:50%;margin-right:14px;object-fit:cover;}
+    .chat-item .info{flex:1;}
+    .chat-item .name{font-weight:500;font-size:16px;}
+    .chat-item .preview{font-size:13px;color:#666;margin-top:4px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .chat-item .time{font-size:12px;color:#999;position:absolute;right:16px;top:14px;}
+    .unread{position:absolute;right:12px;bottom:14px;background:#0088cc;color:white;border-radius:50%;width:20px;height:20px;font-size:11px;display:flex;align-items:center;justify-content:center;}
+
+    /* CHAT EKRANI */
     .chat-view{background:#efeae2;display:flex;flex-direction:column;height:100%;}
-    .messages{flex:1;overflow-y:auto;padding:16px;}
-    .msg{max-width:75%;padding:10px 14px;border-radius:18px;margin:8px 0;word-wrap:break-word;}
-    .sent{background:#00bfff;color:white;margin-left:auto;}
-    .received{background:white;margin-right:auto;}
-    .input-bar{display:flex;padding:10px;background:white;border-top:1px solid #eee;}
+    .chat-header{background:#0088cc;color:white;padding:14px;display:flex;align-items:center;position:relative;}
+    .chat-header img{width:40px;height:40px;border-radius:50%;margin-right:12px;}
+    .chat-header .name{font-weight:500;font-size:17px;}
+    .messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;}
+    .msg{max-width:75%;padding:10px 14px;border-radius:18px;word-wrap:break-word;position:relative;}
+    .sent{background:#00bfff;color:white;margin-left:auto;border-bottom-right-radius:4px;}
+    .received{background:white;margin-right:auto;border-bottom-left-radius:4px;}
+    .msg-time{font-size:11px;color:#999;margin-top:4px;text-align:right;}
+    .input-bar{display:flex;padding:10px;background:white;border-top:1px solid #eee;align-items:center;}
     .input-bar input{flex:1;padding:14px 18px;border:none;background:#f0f2f5;border-radius:30px;margin:0 8px;font-size:16px;}
     .input-bar button{width:44px;height:44px;background:#0088cc;color:white;border:none;border-radius:50%;cursor:pointer;}
   </style>
@@ -30,9 +50,9 @@
 <body>
   <div class="app">
 
-    <!-- EMAIL -->
+    <!-- EMAIL KIRISH -->
     <div id="authStep">
-      <div class="header">OrbicXs 1.1.0</div>
+      <div class="header">OrbicXs 1.0</div>
       <div class="content">
         <h2>Email orqali kirish</h2>
         <input id="email" type="email" placeholder="email@gmail.com" />
@@ -41,7 +61,7 @@
       </div>
     </div>
 
-    <!-- USERNAME -->
+    <!-- USERNAME TANLASH -->
     <div id="usernameStep" class="hidden">
       <div class="header">Username tanlang</div>
       <div class="content">
@@ -50,10 +70,31 @@
       </div>
     </div>
 
-    <!-- CHAT LIST -->
-    <div id="usersStep" class="hidden">
+    <!-- CHAT ROʻYXATI (YANGI!) -->
+    <div id="chatsStep" class="hidden">
       <div class="header">Xabarlar</div>
-      <div class="content">Chat roʻyxati (keyin qoʻshiladi)</div>
+      <div class="search">
+        <input type="text" placeholder="Qidiruv..." oninput="searchChats(this.value)" />
+      </div>
+      <div class="chat-list" id="chatList">
+        <!-- Chatlar bu yerga qoʻshiladi -->
+      </div>
+    </div>
+
+    <!-- CHAT EKRANI -->
+    <div id="chatStep" class="hidden chat-view">
+      <div class="chat-header">
+        <div class="back" onclick="backToChats()">Back</div>
+        <img id="chatAvatar" src="https://via.placeholder.com/40" />
+        <div class="info">
+          <div class="name" id="chatWithName"></div>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="input-bar">
+        <input id="msgInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter') sendMsg()" />
+        <button onclick="sendMsg()">Send</button>
+      </div>
     </div>
 
   </div>
@@ -66,75 +107,177 @@
 
     let user = null;
     let myUsername = '';
+    let currentChatWith = null;
+    let chatChannel = null;
 
-    // 1. HAVOLA YUBORISH
+    // HAVOLA YUBORISH
     window.sendMagicLink = async () => {
       const email = document.getElementById('email').value.trim();
       if (!email) return status("Email kiriting!", "error");
-
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: location.origin + '/' }
       });
-
       if (error) return status(error.message, "error");
       status("Havola yuborildi! Emailni bosing.");
     };
 
-    // 2. USERNAME SAQLASH
+    // USERNAME SAQLASH
     window.saveUsername = async () => {
       let username = document.getElementById('username').value.trim();
-      if (!username.startsWith('@')) username = '@' + username;
-
-      const { error } = await supabase.from('profiles').upsert({
-        id: user.id,
-        username,
-        email: user.email
-      });
-
+      if (!username.startsWith('@')) username = '@' + username.replace(/^@+/, '');
+      const { data: exists } = await supabase.from('profiles').select('id').eq('username', username);
+      if (exists?.length > 0) return alert("Bu username band!");
+      const { error } = await supabase.from('profiles').upsert({ id: user.id, username, email: user.email });
       if (error) return alert("Xato: " + error.message);
       myUsername = username;
-      document.getElementById('usersStep').classList.remove('hidden');
-      document.getElementById('usernameStep').classList.add('hidden');
+      show('chatsStep');
+      loadChats();
     };
 
-    function status(text, type = "status") {
-      document.getElementById('status').textContent = text;
-      document.getElementById('status').className = 'status ' + type;
+    // CHAT ROʻYXATINI YUKLASH (YANGI!)
+    async function loadChats() {
+      const { data } = await supabase.from('messages')
+        .select('sender, receiver, text, created_at')
+        .or(`sender.eq.${myUsername},receiver.eq.${myUsername}`)
+        .order('created_at', { ascending: false });
+
+      const chats = {};
+      data?.forEach(m => {
+        const other = m.sender === myUsername ? m.receiver : m.sender;
+        if (!chats[other] || chats[other].created_at < m.created_at) {
+          chats[other] = { username: other, preview: m.text, time: m.created_at };
+        }
+      });
+
+      const list = document.getElementById('chatList');
+      list.innerHTML = Object.values(chats).length === 0
+        ? `<div style="text-align:center;padding:60px;color:#888;">Hozircha xabar yoʻq</div>`
+        : Object.values(chats).map(c => `
+          <div class="chat-item" onclick="openChat('${c.username}')">
+            <img src="https://via.placeholder.com/50" />
+            <div class="info">
+              <div class="name">${c.username}</div>
+              <div class="preview">${c.preview}</div>
+            </div>
+            <div class="time">${formatTime(c.time)}</div>
+          </div>
+        `).join('');
     }
 
-    // ENG MUHIM: LINK BOSILGANDA AVTO KIRISH!
-    supabase.auth.onAuthStateChange((event, session) => {
+    // QIDIRUV (YANGI!)
+    window.searchChats = async (q) => {
+      if (!q) return loadChats();
+      const { data } = await supabase.from('profiles').select('username').ilike('username', `%${q}%`);
+      const list = document.getElementById('chatList');
+      list.innerHTML = data?.map(u => `
+        <div class="chat-item" onclick="openChat('${u.username}')">
+          <img src="https://via.placeholder.com/50" />
+          <div class="info">
+            <div class="name">${u.username}</div>
+            <div class="preview">Yangi suhbat boshlash</div>
+          </div>
+        </div>
+      `).join('') || '<div style="text-align:center;padding:60px;color:#888;">Hech narsa topilmadi</div>';
+    };
+
+    // CHAT OCHISH
+    function openChat(username) {
+      currentChatWith = username;
+      document.getElementById('chatWithName').textContent = username;
+      show('chatStep');
+      document.getElementById('messages').innerHTML = '';
+      loadMessages();
+    }
+
+    window.backToChats = () => {
+      show('chatsStep');
+      currentChatWith = null;
+      if (chatChannel) supabase.removeChannel(chatChannel);
+    };
+
+    function loadMessages() {
+      const chatId = [myUsername, currentChatWith].sort().join('_');
+      chatChannel = supabase.channel(`chat:${chatId}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, p => addMessage(p.new))
+        .subscribe();
+
+      supabase.from('messages')
+        .select()
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: true })
+        .then(({ data }) => data.forEach(addMessage));
+    }
+
+    window.sendMsg = async () => {
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text || !currentChatWith) return;
+      const chatId = [myUsername, currentChatWith].sort().join('_');
+      await supabase.from('messages').insert({
+        chat_id: chatId,
+        sender: myUsername,
+        receiver: currentChatWith,
+        text
+      });
+      input.value = '';
+      loadChats(); // ro'yxatni yangilash
+    };
+
+    function addMessage(m) {
+      const isSent = m.sender === myUsername;
+      const div = document.createElement('div');
+      div.className = `msg ${isSent ? 'sent' : 'received'}`;
+      div.innerHTML = `${m.text}<div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}</div>`;
+      document.getElementById('messages').appendChild(div);
+      div.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function formatTime(date) {
+      const d = new Date(date);
+      const now = new Date();
+      if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'});
+      return d.toLocaleDateString('uz');
+    }
+
+    function show(id) {
+      ['authStep','usernameStep','chatsStep','chatStep'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function status(t, type="status") {
+      const el = document.getElementById('status');
+      el.textContent = t;
+      el.className = 'status ' + type;
+    }
+
+    // AVTO KIRISH
+    supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         user = session.user;
-
-        // Username bor-yoʻqligini tekshirish
-        supabase.from('profiles').select('username').eq('id', user.id).single()
-          .then(({ data, error }) => {
-            if (data?.username) {
-              myUsername = data.username;
-              document.getElementById('authStep').classList.add('hidden');
-              document.getElementById('usersStep').classList.remove('hidden');
-            } else {
-              document.getElementById('authStep').classList.add('hidden');
-              document.getElementById('usernameStep').classList.remove('hidden');
-            }
-          });
+        const { data } = await supabase.from('profiles').select('username').eq('id', user.id).single().catch(() => ({data:null}));
+        if (data?.username) {
+          myUsername = data.username;
+          show('chatsStep');
+          loadChats();
+        } else {
+          show('usernameStep');
+        }
       }
     });
 
-    // SAHIFA OCHILGANDA TEKSHIRISH (yangilanganda ham ishlaydi)
+    // SAHIFA YUKLANGANDA
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         user = session.user;
-        const { data } = await supabase.from('profiles').select('username').eq('id', user.id).single();
+        const { data } = await supabase.from('profiles').select('username').eq('id', user.id).single().catch(() => ({data:null}));
         if (data?.username) {
-          document.getElementById('authStep').classList.add('hidden');
-          document.getElementById('usersStep').classList.remove('hidden');
+          myUsername = data.username;
+          show('chatsStep');
+          loadChats();
         } else {
-          document.getElementById('authStep').classList.add('hidden');
-          document.getElementById('usernameStep').classList.remove('hidden');
+          show('usernameStep');
         }
       }
     })();
