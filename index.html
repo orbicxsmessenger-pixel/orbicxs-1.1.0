@@ -100,29 +100,26 @@
     let myUsername = '';
     let currentChatWith = '';
 
-    // OʻZGARGAN QISM – BU YERDA!
     window.sendMagicLink = async () => {
       const email = document.getElementById('emailInput').value.trim();
-      if (!email || !email.includes('@')) return alert("Iltimos, toʻgʻri email kiriting!");
+      if (!email || !email.includes('@')) return alert("Toʻgʻri email kiriting!");
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { 
-          emailRedirectTo: 'https://orbicxs-1-1-0.vercel.app/'   // <-- FAQAT BU QATORNI QATTIQ YOZDIK!
-        }
+        options: { emailRedirectTo: 'https://orbicxs-1-1-0.vercel.app/' }
       });
 
       if (error) alert("Xato: " + error.message);
-      else alert("Havola emailingizga yuborildi! Uni bosing");
+      else alert("Havola yuborildi! Emailni bosing");
     };
 
     window.saveUsername = async () => {
       let name = document.getElementById('usernameInput').value.trim();
-      if (!name) return alert("Ismingizni kiriting!");
+      if (!name) return alert("Ism kiriting!");
       myUsername = '@' + name.toLowerCase().replace(/[^a-z0-9_]/g, '').substring(0,25);
 
       const { data: exists } = await supabase.from('profiles').select('id').eq('username', myUsername);
-      if (exists?.length > 0) return alert("Bu username band! Boshqa ism tanlang");
+      if (exists?.length > 0) return alert("Bu username band!");
 
       await supabase.from('profiles').upsert({ id: user.id, username: myUsername });
       show('chatsScreen');
@@ -143,17 +140,13 @@
         }
       });
 
-      const list = document.getElementById('chatList');
-      list.innerHTML = Object.values(chats).length === 0
-        ? `<div style="text-align:center;padding:120px;color:#888;font-size:16px;">Hozircha xabar yoʻq</div>`
+      document.getElementById('chatList').innerHTML = Object.values(chats).length === 0
+        ? '<div style="text-align:center;padding:120px;color:#888;">Hozircha xabar yoʻq</div>'
         : Object.values(chats).sort((a,b) => new Date(b.time) - new Date(a.time)).map(c => `
           <div class="chat-item" onclick="openChat('${c.username}')">
             <img src="https://via.placeholder.com/56" />
-            <div class="info">
-              <div class="name">${c.username}</div>
-              <div class="preview">${c.preview}</div>
-            </div>
-            <div class="time">${new Date(c.time).toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'})}</div>
+            <div class="info"><div class="name">${c.username}</div><div class="preview">${c.preview}</div></div>
+            <div class="time">${new Date(c.time).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}</div>
           </div>
         `).join('');
     }
@@ -164,10 +157,7 @@
       document.getElementById('chatList').innerHTML = data?.filter(u => u.username !== myUsername).map(u => `
         <div class="chat-item" onclick="openChat('${u.username}')">
           <img src="https://via.placeholder.com/56" />
-          <div class="info">
-            <div class="name">${u.username}</div>
-            <div class="preview">Yangi suhbat</div>
-          </div>
+          <div class="info"><div class="name">${u.username}</div><div class="preview">Yangi suhbat</div></div>
         </div>
       `).join('') || '<div style="text-align:center;padding:120px;color:#888;">Topilmadi</div>';
     };
@@ -178,16 +168,15 @@
     async function loadMessages() {
       const chatId = [myUsername, currentChatWith].sort().join('_');
       const { data } = await supabase.from('messages').select().eq('chat_id', chatId).order('created_at', { ascending: true });
-      data.forEach(m => addMessage(m));
+      data?.forEach(addMessage);
     }
 
     window.sendMessage = async () => {
-      const input = document.getElementById('msgInput');
-      const text = input.value.trim();
+      const text = document.getElementById('msgInput').value.trim();
       if (!text || !currentChatWith) return;
       const chatId = [myUsername, currentChatWith].sort().join('_');
       await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, receiver: currentChatWith, text });
-      input.value = '';
+      document.getElementById('msgInput').value = '';
     };
 
     function addMessage(m) {
@@ -203,38 +192,38 @@
       document.getElementById(id).classList.remove('hidden');
     }
 
-    supabase.channel('messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
-        const m = p.new;
-        if ((m.sender === myUsername && m.receiver === currentChatWith) || (m.receiver === myUsername && m.sender === currentChatWith)) {
-          addMessage(m);
-        }
-        loadChats();
-      })
-      .subscribe();
+    // REAL-TIME
+    supabase.channel('msg').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
+      const m = p.new;
+      if ((m.sender === myUsername && m.receiver === currentChatWith) || (m.receiver === myUsername && m.sender === currentChatWith)) {
+        addMessage(m);
+      }
+      loadChats();
+    }).subscribe();
 
-    // AVTO KIRISH
+    // ENG MUHIM – XATOSIZ AVTO KIRISH
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         user = session.user;
-        const { data } = await supabase.from('profiles').select('username').eq('id', user.id).single().catch(() => ({data:null}));
-        if (data?.username) {
-          myUsername = data.username;
+        const { data: profile, error } = await supabase.from('profiles').select('username').eq('id', user.id).maybeSingle();
+        if (profile?.username) {
+          myUsername = profile.username;
           show('chatsScreen');
           loadChats();
         } else {
-          show('profileScreen');
+          show('profileScreen');   // <-- BU YERDA XATO YOʻQ!
         }
       }
     });
 
+    // SAHIFA OCHILGANDA
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         user = session.user;
-        const { data } = await supabase.from('profiles').select('username').eq('id', user.id).single().catch(() => ({data:null}));
-        if (data?.username) {
-          myUsername = data.username;
+        const { data: profile } = await supabase.from('profiles').select('username').eq('id', user.id).maybeSingle();
+        if (profile?.username) {
+          myUsername = profile.username;
           show('chatsScreen');
           loadChats();
         } else {
