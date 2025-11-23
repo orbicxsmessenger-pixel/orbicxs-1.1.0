@@ -47,7 +47,7 @@
   <div class="app">
     <!-- EMAIL KIRISH -->
     <div id="authStep">
-      <div class="header">OrbicXs 1.0</div>
+      <div class="header">OrbicXs 1.1.0</div>
       <div class="content" style="padding:24px;">
         <input id="email" type="email" placeholder="email@gmail.com" />
         <button onclick="sendMagicLink()">HAVOLA YUBORISH</button>
@@ -59,7 +59,7 @@
     <div id="usernameStep" class="hidden">
       <div class="header">Username tanlang</div>
       <div class="content" style="padding:24px;">
-        <input id="username" type="text" placeholder="@ali_2005" />
+        <input id="username" type="text" placeholder="@jm_sh.z" />
         <button onclick="saveUsername()">SAQLASH</button>
       </div>
     </div>
@@ -109,7 +109,7 @@
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: 'https://orbicxs-1-1-0.vercel.app' }
+        options: { emailRedirectTo: 'https://orbicxs.com' }
       });
 
       if (error) return status(error.message, "error");
