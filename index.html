@@ -34,7 +34,7 @@
     .received{background:#fff;align-self:flex-start;border-bottom-left-radius:4px;}
     .msg-time{font-size:11px;margin-top:4px;text-align:right;opacity:0.8;}
     .input-bar{display:flex;padding:10px;background:#fff;border-top:1px solid #eee;gap:8px;align-items:center;}
-    .input-bar .attach{width:44px;height:44px;background:#f0f2f5;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;}
+    .input-bar .attach{width:44px;height:44px;background:#f0f5f5;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;}
     .input-bar input[type=text]{flex:1;padding:14px 18px;border:none;background:#f0f2f5;border-radius:30px;font-size:16px;outline:none;}
     .input-bar button{width:44px;height:44px;background:#0088cc;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:20px;}
     .hidden{display:none;}
@@ -45,7 +45,7 @@
 <body>
   <div class="app">
 
-    <!-- 1. Email kirish -->
+    <!-- EMAIL OYNA – MAJBURIY BIRINCHI -->
     <div id="authStep">
       <div class="header">OrbicXs</div>
       <div class="content">
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <!-- 2. Username tanlash -->
+    <!-- USERNAME OYNA -->
     <div id="usernameStep" class="hidden">
       <div class="header">Username tanlang</div>
       <div class="content">
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <!-- 3. Chat ro'yxati -->
+    <!-- CHAT RO'YXATI -->
     <div id="usersStep" class="hidden">
       <div class="header">
         <div>Xabarlar</div>
@@ -76,7 +76,7 @@
       <div class="user-list" id="userList"></div>
     </div>
 
-    <!-- 4. Chat oynasi -->
+    <!-- CHAT OYNA -->
     <div id="chatStep" class="hidden">
       <div class="chat-header">
         <div class="back" onclick="backToUsers()">Back</div>
@@ -88,7 +88,7 @@
       </div>
       <div class="messages" id="messages"></div>
       <div class="input-bar">
-        <div class="attach" onclick="document.getElementById('fileInput').click()">Attach</div>
+        <div class="attach" onclick="document.getElementById('fileInput').click()">📎</div>
         <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="uploadImage(event)" />
         <input type="text" id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMsg()" />
         <button onclick="sendMsg()">Send</button>
@@ -105,8 +105,9 @@
     let currentChatWith = null;
     let currentChannel = null;
 
-    // MAGIC LINK + YANGI FOYDALANUVCHI – 100% ISHLAYDI
+    // MAGIC LINK – 100% ISHLAYDI (session to'g'ri o'qiladi)
     supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, session ? 'logged in' : 'logged out'); // Debug uchun
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         const { data, error } = await supabase
           .from('profiles')
@@ -114,9 +115,12 @@
           .eq('id', session.user.id)
           .single();
 
-        if (error && error.code !== 'PGRST116') console.error(error);
+        if (error && error.code !== 'PGRST116') {
+          console.error('Profile error:', error);
+          return;
+        }
         
-        if (data?.username) {
+        if (data && data.username) {
           myUsername = data.username;
           showScreen('usersStep');
           loadUsersList();
@@ -124,34 +128,43 @@
           showScreen('usernameStep');
         }
       }
+      if (event === 'SIGNED_OUT') location.reload();
     });
 
-    // Sahifa ochilganda
+    // Sahifa yuklanganda – email oynasini majburiy ko'rsat
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) showScreen('authStep');
+      if (session) {
+        // Agar session bor bo'lsa, onAuthStateChange ishlaydi
+      } else {
+        showScreen('authStep');
+      }
     });
 
     window.sendMagicLink = async () => {
       const email = document.getElementById('email').value.trim();
       if (!email) return status("Email kiriting!", "error");
-      const { error } = await supabase.auth.signInWithOtp({ email });
+      const { error } = await supabase.auth.signInWithOtp({ 
+        email, 
+        options: { emailRedirectTo: window.location.origin }  // Domenni avto olish
+      });
       if (error) status(error.message, "error");
-      else status("Havola yuborildi! Pochtangizni tekshiring");
+      else status("Havola yuborildi! Pochtangizni tekshiring va havolani bosing.");
     };
 
     window.saveUsername = async () => {
       let username = document.getElementById('username').value.trim();
       if (!username) return alert("Username kiriting!");
       if (!username.startsWith('@')) username = '@' + username.replace('@', '');
-      if (!/^@[a-zA-Z0-9_\.]{2,30}$/.test(username)) return alert("Noto‘g‘ri format!");
+      if (!/^@[a-zA-Z0-9_\.]{2,30}$/.test(username)) return alert("Noto'g'ri format! @ bilan boshlaning va harf-raqamdan iborat bo'lsin.");
 
+      const user = await supabase.auth.getUser();
       const { error } = await supabase
         .from('profiles')
         .update({ username: username.toLowerCase() })
-        .eq('id', (await supabase.auth.getUser()).data.user.id);
+        .eq('id', user.data.user.id);
 
       if (error) {
-        if (error.code === '23505') alert("Bu username band!");
+        if (error.code === '23505') alert("Bu username band! Boshqasini tanlang.");
         else alert("Xato: " + error.message);
       } else {
         myUsername = username.toLowerCase();
@@ -170,7 +183,7 @@
         const div = document.createElement('div');
         div.className = 'user-item';
         div.innerHTML = `
-          <img src="https://via.placeholder.com/48/0088cc/fff?text=${u.username[1].toUpperCase()}">
+          <img src="https://via.placeholder.com/48/0088cc/fff?text=${u.username[1]?.toUpperCase() || 'U'}">
           <div style="flex:1">
             <div class="name">${u.username}</div>
             <div class="last">Yangi suhbat</div>
@@ -183,7 +196,7 @@
     }
 
     window.searchUsers = async (q) => {
-      if (!q) return loadUsersList();
+      if (!q.trim()) return loadUsersList();
       const { data } = await supabase.from('profiles').select('username').ilike('username', `%${q}%`);
       const list = document.getElementById('userList');
       list.innerHTML = '';
@@ -191,7 +204,7 @@
         if (!u.username || u.username === myUsername) return;
         const div = document.createElement('div');
         div.className = 'user-item';
-        div.innerHTML = `<div class="name">${u.username}</div>`;
+        div.innerHTML = `<div class="name">${u.username}</div><div class="last">Qidiruv natijasi</div>`;
         div.onclick = () => openChat(u.username);
         list.appendChild(div);
       });
@@ -201,12 +214,12 @@
       currentChatWith = username;
       showScreen('chatStep');
       document.getElementById('chatWithName').textContent = username;
-      document.getElementById('chatAvatar').src = `https://via.placeholder.com/40/0088cc/fff?text=${username[1].toUpperCase()}`;
+      document.getElementById('chatAvatar').src = `https://via.placeholder.com/40/0088cc/fff?text=${username[1]?.toUpperCase() || 'U'}`;
       document.getElementById('messages').innerHTML = '';
 
       const chatId = [myUsername, username].sort().join('_');
       supabase.from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true })
-        .then(({ data }) => data.forEach(addMessage));
+        .then(({ data }) => data?.forEach(addMessage) || console.log('Xabarlar yo\'q'));
 
       if (currentChannel) supabase.removeChannel(currentChannel);
       currentChannel = supabase.channel(`chat:${chatId}`)
@@ -219,8 +232,8 @@
       const div = document.createElement('div');
       div.className = `msg ${isSent ? 'sent' : 'received'}`;
       div.innerHTML = `
-        ${m.image_url ? `<img src="${m.image_url}" style="max-width:100%;border-radius:12px;margin:6px 0;">` : m.text || ''}
-        <div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}</div>
+        ${m.image_url ? `<img src="${m.image_url}" style="max-width:100%;border-radius:12px;margin:6px 0;" alt="Rasm">` : (m.text || '[Bo\'sh xabar]')}
+        <div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'})}</div>
       `;
       document.getElementById('messages').appendChild(div);
       div.scrollIntoView({behavior:'smooth'});
@@ -230,7 +243,8 @@
       const text = document.getElementById('msgInput').value.trim();
       if (!text || !currentChatWith) return;
       const chatId = [myUsername, currentChatWith].sort().join('_');
-      await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, text });
+      const { error } = await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, text });
+      if (error) console.error('Xabar yuborish xatosi:', error);
       document.getElementById('msgInput').value = '';
     };
 
@@ -238,10 +252,12 @@
       const file = e.target.files[0];
       if (!file || !currentChatWith) return;
       const chatId = [myUsername, currentChatWith].sort().join('_');
-      const path = `${chatId}/${Date.now()}`;
-      await supabase.storage.from('images').upload(path, file);
+      const path = `${chatId}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('images').upload(path, file);
+      if (uploadError) return alert('Rasm yuklashda xato: ' + uploadError.message);
       const { data } = supabase.storage.from('images').getPublicUrl(path);
       await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, image_url: data.publicUrl });
+      e.target.value = ''; // Fayl inputni tozalash
     };
 
     window.backToUsers = () => {
