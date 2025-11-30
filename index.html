@@ -3,102 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ORBICXS</title>
-  <meta name="theme-color" content="#000">
+  <title>OrbicXs</title>
+  <meta name="theme-color" content="#0d0d0d">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Exo+2:wght@300;500;700&display=swap');
-    
-    :root{--accent:#00ffea;--accent2:#ff00aa;--bg:#000000;--glass:rgba(10,10,30,0.7);}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body,html{height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:'Exo 2',sans-serif;position:relative;}
-    
-    .stars{background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="g"><stop offset="0%" stop-color="%23fff"/><stop offset="100%" stop-color="%23000"/></radialGradient></defs><circle cx="100" cy="100" r="2" fill="%23fff"/><circle cx="300" cy="200" r="1.5" fill="%23fff"/><circle cx="700" cy="300" r="2" fill="%23fff"/><circle cx="900" cy="800" r="1.8" fill="%23fff"/><circle cx="500" cy="600" r="2.5" fill="%23fff"/></svg>');animation:stars 120s linear infinite;}
-    @keyframes stars{from{background-position:0 0;}to{background-position:1000px 1000px;}}
-    
-    .app{width:100%;max-width:420px;height:100dvh;margin:auto;background:var(--glass);backdrop-filter:blur(30px);border:1px solid rgba(0,255,234,0.2);overflow:hidden;position:relative;display:flex;flex-direction:column;}
-    
-    .header{position:relative;padding:60px 20px 100px;text-align:center;overflow:hidden;}
-    .header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,255,234,0.15),transparent 70%);pointer-events:none;}
-    .header h1{font-family:'Orbitron',sans-serif;font-size:48px;letter-spacing:8px;background:linear-gradient(90deg,#00ffea,#ff00aa,#00ffea);background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:glow 4s linear infinite;}
-    @keyframes glow{0%,100%{background-position:0%;}50%{background-position:200%;}}
-    
-    .card{background:rgba(15,15,40,0.8);border:1px solid rgba(0,255,234,0.3);border-radius:30px;margin:-70px 24px 30px;padding:40px 30px;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,255,234,0.1);}
-    
-    input{width:100%;padding:20px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,255,234,0.4);color:#fff;font-size:18px;margin:15px 0;outline:none;transition:.4s;}
-    input:focus{border-color:#00ffea;box-shadow:0 0 30px rgba(0,255,234,0.4);}
-    
-    button{width:100%;padding:20px;border-radius:20px;background:linear-gradient(45deg,var(--accent),var(--accent2));border:none;color:#000;font-weight:700;font-size:18px;cursor:pointer;box-shadow:0 10px 40px rgba(0,255,234,0.4);transition:.4s;}
-    button:active{transform:scale(0.95);box-shadow:0 20px 60px rgba(255,0,170,0.6);}
-    
-    .scene{flex:1;overflow:hidden;position:relative;}
-    .chat-list{padding:20px 10px;display:grid;gap:16px;}
-    .chat-item{background:rgba(20,20,60,0.6);border-radius:24px;padding:18px;display:flex;align-items:center;gap:18px;cursor:pointer;transition:.4s;animation:float 6s ease-in-out infinite;border:1px solid rgba(0,255,234,0.2);}
-    .chat-item:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,255,234,0.2);}
-    .chat-item img{width:64px;height:64px;border-radius:50%;border:3px solid var(--accent);box-shadow:0 0 30px rgba(0,255,234,0.4);}
-    .name{font-size:20px;font-weight:700;background:linear-gradient(90deg,#00ffea,#ff00aa);background-clip:text;-webkit-background-clip:text;color:transparent;}
-    
-    .chat-body{flex:1;overflow-y:auto;padding:30px 20px 140px;background:radial-gradient(circle at 50% 100%,rgba(0,255,234,0.05),transparent);}
-    .msg{max-width:80%;padding:16px 24px;border-radius:28px;margin:12px 0;position:relative;animation:msgIn 0.6s cubic-bezier(0.18,0.89,0.32,1.28);}
-    @keyframes msgIn{from{transform:translateY(50px) scale(0.8);opacity:0;}to{transform:none;opacity:1;}}
-    .received{background:rgba(0,255,234,0.15);backdrop-filter:blur(10px);border:1px solid rgba(0,255,234,0.3);align-self:flex-start;color:#fff;}
-    .sent{background:linear-gradient(135deg,var(--accent),var(--accent2));align-self:flex-end;color:#000;box-shadow:0 10px 30px rgba(255,0,170,0.4);}
-    
-    .input-bar{position:fixed;bottom:0;max-width:420px;width:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(30px);padding:20px 20px max(20px,env(safe-area-inset-bottom));display:flex;gap:16px;align-items:center;border-top:1px solid rgba(0,255,234,0.2);}
-    .input-bar input{flex:1;background:rgba(255,255,255,0.1);padding:20px 24px;border-radius:40px;border:1px solid rgba(0,255,234,0.4);color:#fff;font-size:17px;}
-    .send-btn{width:64px;height:64px;background:radial-gradient(circle,var(--accent),#00aaff);border-radius:50%;display:grid;place-items:center;font-size:32px;box-shadow:0 0 40px rgba(0,255,234,0.8);animation:pulse 2s infinite;}
-    @keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(0,255,234,0.8);}50%{box-shadow:0 0 80px rgba(0,255,234,1);}}
-    
+    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif;}
+    body,html{height:100dvh;background:#0d0d0d;color:#fff;overflow:hidden;display:flex;justify-content:center;align-items:center;}
+    .app{max-width:420px;width:100%;height:100dvh;background:#111;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 50px rgba(0,255,255,0.2);}
+    .header{padding:60px 30px 40px;text-align:center;background:linear-gradient(135deg,#00ffff,#8b00ff);border-radius:20px 20px 0 0;}
+    .header h1{font-size:36px;font-weight:900;letter-spacing:2px;}
+    .card{background:#1a1a1a;padding:30px;border-radius:20px;margin: -40px 20px 20px;box-shadow:0 10px 40px rgba(0,0,0,0.5);}
+    input{width:100%;padding:18px;border-radius:16px;background:#222;border:2px solid #333;color:#fff;font-size:18px;margin:12px 0;outline:none;transition:.3s;}
+    input:focus{border-color:#00ffff;box-shadow:0 0 20px rgba(0,255,255,0.4);}
+    button{width:100%;padding:18px;border-radius:16px;background:linear-gradient(135deg,#00ffff,#8b00ff);border:none;color:#000;font-weight:800;font-size:18px;cursor:pointer;margin-top:10px;}
+    .status{margin-top:15px;text-align:center;font-size:15px;}
+    .chat-list{flex:1;overflow-y:auto;padding:20px;background:#111;}
+    .chat-item{background:#1e1e1e;padding:16px;border-radius:16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:.3s;}
+    .chat-item:hover{background:#252525;transform:translateX(8px);}
+    .chat-item img{width:56px;height:56px;border-radius:50%;border:3px solid #00ffff;}
+    .name{font-weight:700;font-size:18px;}
+    .preview{font-size:14px;color:#aaa;margin-top:4px;}
+    .chat-body{flex:1;overflow-y:auto;padding:20px;background:#0d0d0d;}
+    .msg{max-width:78%;padding:14px 20px;border-radius:20px;margin:10px 0;word-wrap:break-word;}
+    .received{background:#222;color:#fff;align-self:flex-start;border-bottom-left-radius:4px;}
+    .sent{background:#00ffff;color:#000;align-self:flex-end;border-bottom-right-radius:4px;font-weight:600;}
+    .time{font-size:11px;color:#666;margin-top:6px;text-align:right;}
+    .input-bar{background:#1a1a1a;padding:16px;display:flex;gap:12px;align-items:center;position:sticky;bottom:0;}
+    .input-bar input{flex:1;padding:16px 20px;background:#222;border:none;border-radius:30px;color:#fff;font-size:16px;outline:none;}
+    .send-btn{width:56px;height:56px;background:#00ffff;color:#000;border-radius:50%;display:grid;place-items:center;font-size:26px;cursor:pointer;}
     .hidden{display:none !important;}
-    .loader{margin:60px auto;width:80px;height:80px;border:6px solid #111;border-top:6px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
   </style>
 </head>
-<body class="stars">
-
+<body>
 <div class="app">
 
   <!-- Kirish -->
   <div id="login">
     <div class="header">
-      <h1>ORBICXS</h1>
+      <h1>OrbicXs</h1>
     </div>
     <div class="card">
-      <input id="email" type="email" placeholder="Maxfiy emailingiz">
-      <button onclick="sendMagic()">MAXFIY HAVOLA YUBORISH</button>
-      <div id="status" style="margin-top:20px;font-size:16px;text-align:center;"></div>
+      <input id="email" type="email" placeholder="Email kiriting">
+      <button onclick="sendLink()">HAVOLA YUBORISH</button>
+      <div id="status" class="status"></div>
     </div>
   </div>
 
   <!-- Username -->
   <div id="username" class="hidden">
-    <div class="header"><h1>Kod nomi</h1></div>
-    <div class="card">
-      <input id="code" placeholder="Maxfiy kod nomi (@bilan)">
-      <button onclick="activate()">FAOLLASHTIRISH</button>
+    <div class="card" style="margin-top:60px;">
+      <input id="uname" placeholder="@username tanlang">
+      <button onclick="saveName()">SAQLASH</button>
     </div>
   </div>
 
   <!-- Chatlar -->
-  <div id="home" class="hidden">
-    <div class="header"><h1 id="myName">AGENT</h1></div>
-    <div class="scene">
-      <div class="chat-list" id="agents"></div>
-    </div>
+  <div id="home" class="hidden" style="display:flex;flex-direction:column;height:100dvh;">
+    <div class="header"><h1>Chatlar</h1></div>
+    <div class="chat-list" id="list"></div>
   </div>
 
   <!-- Chat -->
-  <div id="chat" class="hidden">
+  <div id="chat" class="hidden" style="display:flex;flex-direction:column;height:100dvh;">
     <div class="header">
-      <div onclick="back()" style="position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:32px;cursor:pointer;">Back</div>
-      <h1 id="target">TARGET</h1>
+      <div onclick="back()" style="position:absolute;left:20px;font-size:28px;cursor:pointer;">Back</div>
+      <h1 id="with">User</h1>
     </div>
-    <div class="chat-body" id="msgArea"></div>
+    <div class="chat-body" id="msgs"></div>
     <div class="input-bar">
-      <input id="input" placeholder="Maxfiy xabar...">
+      <input id="txt" placeholder="Xabar..." onkeypress="if(event.key==='Enter')send()">
       <div class="send-btn" onclick="send()">Heart</div>
     </div>
   </div>
@@ -111,64 +87,69 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A'
   );
 
-  let ME = '', TARGET = '', channel = null;
+  let me = '', to = '', channel = null;
 
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-  Notification.requestPermission();
+  // MUHIM: To‘g‘ri redirect URL
+  const REDIRECT_URL = location.origin + location.pathname;
 
-  window.sendMagic = async () => {
+  window.sendLink = async () => {
     const email = document.getElementById('email').value.trim();
-    if(!email) return;
-    const {error} = await supabase.auth.signInWithOtp({email, options:{emailRedirectTo:location.href}});
-    document.getElementById('status').textContent = error ? 'Xato!' : 'Maxfiy havola yuborildi!';
+    if (!email) return;
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: REDIRECT_URL }
+    });
+    document.getElementById('status').textContent = error ? 'Xato!' : 'Havola yuborildi! Pochtangizni tekshiring';
   };
 
-  window.activate = async () => {
-    let name = document.getElementById('code').value.trim().toLowerCase();
-    if(!name) return;
-    if(!name.startsWith('@')) name = '@'+name;
-    const {data:{user}} = await supabase.auth.getUser();
-    const {error} = await supabase.from('profiles').upsert({id:user.id, username:name});
-    if(error?.code==='23505') return alert('Bu kod band!');
-    ME = name;
-    document.getElementById('myName').textContent = ME;
+  window.saveName = async () => {
+    let name = document.getElementById('uname').value.trim();
+    if (!name) return alert('Username kiriting!');
+    if (!name.startsWith('@')) name = '@' + name;
+    name = name.toLowerCase();
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('profiles').upsert({ id: user.id, username: name });
+    if (error && error.code === '23505') return alert('Bu username band!');
+    me = name;
+    goHome();
+  };
+
+  function goHome() {
     document.getElementById('username').classList.add('hidden');
     document.getElementById('home').classList.remove('hidden');
-    loadAgents();
-  };
+    loadChats();
+  }
 
-  async function loadAgents(){
-    const {data} = await supabase.from('messages').select('*').order('created_at',{ascending:false});
-    const list = new Set();
-    data?.forEach(m=>{
-      const [a,b] = m.chat_id.split('___');
-      const other = a===ME ? b : a;
-      if(other && other!==ME) list.add(other);
+  async function loadChats() {
+    const { data } = await supabase.from('messages').select().order('created_at', { ascending: false });
+    const chats = new Set();
+    data?.forEach(m => {
+      const [a, b] = m.chat_id.split('___');
+      const other = a === me ? b : a;
+      if (other && other !== me) chats.add(other);
     });
-    const container = document.getElementById('agents');
-    container.innerHTML = '';
-    [...list].forEach(name=>{
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    chats.forEach(name => {
       const div = document.createElement('div');
-      div.className='chat-item';
-      div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${name}&background=0ff&color=000&bold=true">
-        <div><div class="name">${name}</div><div style="color:#0ff;margin-top:6px;">Oxirgi faollik: hozir</div></div>`;
-      div.onclick = () => openTarget(name);
-      container.appendChild(div);
+      div.className = 'chat-item';
+      div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${name}&background=00ffff&color=000&bold=true">
+        <div><div class="name">${name}</div><div class="preview">Yangi xabar bor</div></div>`;
+      div.onclick = () => openChat(name);
+      list.appendChild(div);
     });
   }
 
-  function openTarget(name){
-    TARGET = name;
-    document.getElementById('target').textContent = name;
+  function openChat(name) {
+    to = name;
+    document.getElementById('with').textContent = name;
     document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.remove('hidden');
-    document.getElementById('msgArea').innerHTML = '';
-    
-    const id = [ME,name].sort().join('___');
+    document.getElementById('msgs').innerHTML = '';
+    const id = [me, to].sort().join('___');
     channel = supabase.channel(id);
-    channel.on('postgres_changes',{event:'INSERT',table:'messages',filter:`chat_id=eq.${id}`},p=>show(p.new)).subscribe();
-    
-    supabase.from('messages').select().eq('chat_id',id).order('created_at').then(r=>r.data.forEach(show));
+    channel.on('postgres_changes', { event: 'INSERT', table: 'messages', filter: `chat_id=eq.${id}` }, p => addMsg(p.new)).subscribe();
+    supabase.from('messages').select().eq('chat_id', id).order('created_at').then(r => r.data.forEach(addMsg));
   }
 
   window.back = () => {
@@ -178,38 +159,51 @@
   };
 
   window.send = async () => {
-    const msg = document.getElementById('input');
-    const text = msg.value.trim();
-    if(!text) return;
-    const id = [ME,TARGET].sort().join('___');
-    await supabase.from('messages').insert({chat_id:id, sender:ME, text});
-    msg.value = '';
+    const txt = document.getElementById('txt').value.trim();
+    if (!txt) return;
+    const id = [me, to].sort().join('___');
+    await supabase.from('messages').insert({ chat_id: id, sender: me, text: txt });
+    document.getElementById('txt').value = '';
   };
 
-  function show(m){
-    const mine = m.sender===ME;
-    const d = document.createElement('div');
-    d.className = `msg ${mine?'sent':'received'}`;
-    d.innerHTML = `${m.text}<div style="font-size:11px;margin-top:8px;opacity:0.7;">${new Date(m.created_at).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'})}</div>`;
-    document.getElementById('msgArea').appendChild(d);
-    document.getElementById('msgArea').scrollTop = 1e9;
+  function addMsg(m) {
+    const mine = m.sender === me;
+    const div = document.createElement('div');
+    div.className = `msg ${mine ? 'sent' : 'received'}`;
+    div.innerHTML = `${m.text}<div class="time">${new Date(m.created_at).toLocaleTimeString('uz', { hour: '2-digit', minute: '2-digit' })}</div>`;
+    document.getElementById('msgs').appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth' });
   }
 
-  supabase.auth.onAuthStateChange(async (_,s)=>{
-    if(s?.user){
-      const {data} = await supabase.from('profiles').select('username').eq('id',s.user.id).single();
-      if(data?.username){
-        ME = data.username;
-        document.getElementById('myName').textContent = ME;
+  // Avto kirish – bu joyda muhim!
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user) {
+      const { data } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
+      if (data?.username) {
+        me = data.username;
         document.getElementById('login').classList.add('hidden');
         document.getElementById('home').classList.remove('hidden');
-        loadAgents();
+        loadChats();
       } else {
         document.getElementById('login').classList.add('hidden');
         document.getElementById('username').classList.remove('hidden');
       }
     }
   });
+
+  // Sahifa yuklanganda ham tekshirish
+  window.onload = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const { data } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
+      if (data?.username) {
+        me = data.username;
+        document.getElementById('login').classList.add('hidden');
+        document.getElementById('home').classList.remove('hidden');
+        loadChats();
+      }
+    }
+  };
 </script>
 </body>
 </html>
