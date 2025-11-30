@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OrbicXs 1.0</title>
+  <title>OrbicXs</title>
   <meta name="description" content="OrbicXs" />
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -76,7 +76,7 @@
     <!-- CHAT EKRANI -->
     <div id="chatStep" class="hidden chat-view">
       <div class="chat-header">
-        <div class="back" onclick="backToUsers()">Back</div>
+        <div class="back" onclick="backToUsers()">←</div>
         <img src="https://via.placeholder.com/36" />
         <div class="info">
           <div class="name" id="chatWithName"></div>
@@ -88,7 +88,7 @@
         <div class="attach" onclick="document.getElementById('fileInput').click()">Attach</div>
         <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="uploadImage(event)" />
         <input id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMsg()" />
-        <button onclick="sendMsg()">Send</button>
+        <button onclick="sendMsg()">❤️</button>
       </div>
     </div>
   </div>
