@@ -43,10 +43,9 @@
 </head>
 <body>
   <div class="app">
-
-    <!-- 1. Email kirish -->
+    <!-- Email kirish -->
     <div id="authStep">
-      <div class="header">OrbicXs 1.3.0</div>
+      <div class="header">OrbicXs</div>
       <div class="content">
         <h2 style="margin-bottom:20px; color:#333">Xush kelibsiz!</h2>
         <input id="email" type="email" placeholder="email@gmail.com" />
@@ -55,7 +54,7 @@
       </div>
     </div>
 
-    <!-- 2. Username tanlash -->
+    <!-- Username tanlash -->
     <div id="usernameStep" class="hidden">
       <div class="header">Username tanlang</div>
       <div class="content">
@@ -65,9 +64,9 @@
       </div>
     </div>
 
-    <!-- 3. Foydalanuvchilar ro‘yxati -->
+    <!-- Foydalanuvchilar ro‘yxati -->
     <div id="usersStep" class="hidden">
-      <div class="header">Xabarlar</div>
+      <div class="header">Shaxsiy</div>
       <div class="search">
         <input type="text" placeholder="Qidiruv... @username" oninput="debouncedSearch(this.value)" />
       </div>
@@ -76,7 +75,7 @@
       </div>
     </div>
 
-    <!-- 4. Chat oynasi -->
+    <!-- Chat oynasi -->
     <div id="chatStep" class="hidden chat-view">
       <div class="header">
         <div class="back" onclick="backToUsers()">←</div>
@@ -88,7 +87,6 @@
         <button onclick="sendMsg()">Send</button>
       </div>
     </div>
-
   </div>
 
   <script>
@@ -101,41 +99,28 @@
     let currentChatWith = null;
     let channel = null;
 
-    // Chat ID xavfsiz yaratish
     const getChatId = (a, b) => [a, b].sort().join('___');
 
-    // Status ko‘rsatish
     function status(text, type = 'success') {
       const el = document.getElementById('status') || document.getElementById('usernameStatus');
       if (el) { el.innerText = text; el.className = type === 'error' ? 'error' : 'success'; }
     }
 
-    // Magic link yuborish
+    // Magic link yuborish — https://orbicxs.com uchun
     window.sendMagicLink = async () => {
       const email = document.getElementById('email').value.trim();
       if (!email) return status('Email kiriting!', 'error');
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: location.href }
-      });
-      if (error) return status(error.message, 'error');
-      status('Havola yuborildi! Pochtangizni tekshiring');
-    };
-
-    // Auth holatini kuzatish
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        currentUser = session.user;
-        const { data } = await supabase.from('profiles').select('username').eq('id', currentUser.id).single();
-        if (data?.username) {
-          myUsername = data.username;
-          showUsersList();
-        } else {
-          document.getElementById('authStep').classList.add('hidden');
-          document.getElementById('usernameStep').classList.remove('hidden');
+        options: {
+          emailRedirectTo: 'https://orbicxs.com'  // MUHIM: faqat shu domen
         }
-      }
-    });
+      });
+
+      if (error) return status('Xato: ' + error.message, 'error');
+      status('Havola yuborildi! Emailni tekshiring');
+    };
 
     // Username saqlash
     window.saveUsername = async () => {
@@ -154,7 +139,48 @@
       showUsersList();
     };
 
-    // Barcha foydalanuvchilarni yuklash
+    // Sessionni tekshirish va sahifani boshqarish
+    async function checkAuth() {
+      // Magic linkdan kelgan bo‘lsa hash (#access_token=...) bo‘ladi
+      if (window.location.hash) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          await loadUserProfile();
+          // URLni tozalash
+          history.replaceState(null, null, window.location.pathname);
+          return;
+        }
+      }
+
+      // Oddiy kirish
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        await loadUserProfile();
+      }
+    }
+
+    // Profilni yuklash
+    async function loadUserProfile() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') return console.error(error);
+
+      if (data?.username) {
+        myUsername = data.username;
+        showUsersList();
+      } else {
+        document.getElementById('authStep').classList.add('hidden');
+        document.getElementById('usernameStep').classList.remove('hidden');
+      }
+    }
+
+    // Foydalanuvchilar ro‘yxati
     async function showUsersList() {
       document.getElementById('authStep').classList.add('hidden');
       document.getElementById('usernameStep').classList.add('hidden');
@@ -185,7 +211,7 @@
       });
     }
 
-    // Qidiruv (debounced)
+    // Qidiruv
     let searchTimeout;
     window.debouncedSearch = (q) => {
       clearTimeout(searchTimeout);
@@ -202,7 +228,7 @@
 
       const list = document.getElementById('userList');
       list.innerHTML = '';
-      if (data.length === 0) {
+      if (!data || data.length === 0) {
         list.innerHTML = `<div class="empty">"${query}" bo‘yicha hech kim topilmadi</div>`;
         return;
       }
@@ -216,7 +242,7 @@
       });
     };
 
-    // Chat ochish
+    // Chat funksiyalari
     function openChat(username) {
       currentChatWith = username;
       document.getElementById('usersStep').classList.add('hidden');
@@ -227,17 +253,15 @@
       if (channel) channel.unsubscribe();
       const chatId = getChatId(myUsername, username);
       channel = supabase.channel(`chat:${chatId}`);
-
       channel.on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}`
       }, payload => addMessage(payload.new)).subscribe();
 
-      // Eski xabarlar
       supabase.from('messages')
         .select()
         .eq('chat_id', chatId)
         .order('created_at', { ascending: true })
-        .then(res => res.data.forEach(addMessage));
+        .then(res => res.data?.forEach(addMessage));
     }
 
     window.backToUsers = () => {
@@ -266,11 +290,8 @@
       div.scrollIntoView({ behavior:'smooth', block:'end' });
     }
 
-    // Boshlash
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) supabase.auth.setSession(session);
-    })();
+    // Sahifa yuklanganda avto kirish
+    window.addEventListener('load', checkAuth);
   </script>
 </body>
 </html>
