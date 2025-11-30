@@ -1,328 +1,197 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>OrbicXs</title>
   <meta name="theme-color" content="#0088cc">
-  <link rel="manifest" href="manifest.json" />
+  <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap');
-    :root { --primary: #0088cc; --accent: #e74c3c; }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif; }
-    html, body { height:100%; overflow:hidden; background:#111; }
-    body { display:flex; justify-content:center; align-items:center; }
-
-    .app {
-      width:100%; max-width:420px; height:100dvh; background:white;
-      display:flex; flex-direction:column; overflow:hidden; position:relative;
-    }
-
-    .header {
-      background:var(--primary); color:white; padding:16px; font-weight:600; font-size:19px;
-      text-align:center; position:relative; flex-shrink:0; z-index:10;
-    }
-    .header .back { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:28px; cursor:pointer; }
-
-    .content { padding:40px 30px; text-align:center; flex:1; display:flex; flex-direction:column; justify-content:center; gap:15px; }
-    input, button { width:100%; padding:16px; border-radius:14px; font-size:17px; border:none; }
-    input { border:1px solid #ddd; background:#f9f9f9; }
-    button { background:var(--primary); color:white; font-weight:600; cursor:pointer; }
-
-    .status { font-size:14px; min-height:24px; }
-    .success { color:#00c851; }
-    .error { color:#ff4444; }
-
-    /* Chat body */
-    .chat-body {
-      flex:1; overflow-y:auto; padding:16px; background:#efeae2;
-      display:flex; flex-direction:column; gap:12px;
-      -webkit-overflow-scrolling:touch;
-    }
-    .msg {
-      max-width:82%; padding:12px 16px; border-radius:18px; word-wrap:break-word;
-      align-self:flex-start; background:white; position:relative;
-    }
-    .sent { align-self:flex-end; background:#00bfff; color:white; border-bottom-right-radius:4px; }
-    .received { background:white; border-bottom-left-radius:4px; }
-    .msg-time { font-size:11px; opacity:0.7; margin-top:5px; text-align:right; }
-
-    /* Input bar */
-    .input-bar {
-      padding:10px; background:white; border-top:1px solid #eee;
-      display:flex; align-items:center; gap:12px; flex-shrink:0; z-index:10;
-    }
-    .input-bar input {
-      flex:1; padding:15px 20px; border:none; background:#f0f2f5;
-      border-radius:30px; font-size:16px; outline:none;
-    }
-    .send-btn {
-      width:56px; height:56px; background:white; color:var(--accent);
-      border:3px solid var(--accent); border-radius:50%; cursor:pointer;
-      font-size:28px; display:flex; align-items:center; justify-content:center;
-      box-shadow:0 4px 12px rgba(231,76,60,.3); transition:all .2s;
-    }
-    .send-btn:hover { background:var(--accent); color:white; transform:scale(1.1); }
-
-    /* Users list */
-    .user-item {
-      padding:16px; display:flex; align-items:center; cursor:pointer;
-      border-bottom:1px solid #eee; transition:.2s;
-    }
-    .user-item:hover { background:#f8f9fa; }
-    .user-item img { width:52px; height:52px; border-radius:50%; margin-right:14px; }
-    .user-item .info { flex:1; }
-    .user-item .name { font-weight:600; font-size:16px; }
-    .user-item .preview { font-size:13px; color:#666; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-    .hidden { display:none !important; }
-    .empty { text-align:center; padding:80px 20px; color:#888; font-size:15px; line-height:1.6; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif}
+    body,html{height:100%;overflow:hidden;background:#111;display:flex;justify-content:center;align-items:center}
+    .app{width:100%;max-width:420px;height:100dvh;background:#fff;display:flex;flex-direction:column;overflow:hidden;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+    .header{background:#0088cc;color:#fff;padding:16px;font-weight:600;font-size:19px;text-align:center;position:relative}
+    .back{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:28px;cursor:pointer}
+    .content{padding:50px 30px;text-align:center}
+    input,button{width:100%;padding:16px;border-radius:14px;border:none;font-size:17px;margin:10px 0;outline:none}
+    input{background:#f9f9f9;border:1px solid #ddd}
+    button{background:#0088cc;color:#fff;font-weight:600;cursor:pointer}
+    .status{font-size:14px;margin-top:10px;min-height:24px}
+    .success{color:#00c851}.error{color:#ff4444}
+    .chat-body{flex:1;overflow-y:auto;padding:16px;background:#efeae2;display:flex;flex-direction:column;gap:12px}
+    .msg{max-width:82%;padding:12px 16px;border-radius:18px;word-wrap:break-word;align-self:flex-start;background:#fff}
+    .sent{align-self:flex-end;background:#00bfff;color:#fff;border-bottom-right-radius:4px}
+    .received{border-bottom-left-radius:4px}
+    .msg-time{font-size:11px;opacity:0.7;margin-top:5px;text-align:right}
+    .input-bar{padding:10px;background:#fff;border-top:1px solid #eee;display:flex;gap:12px}
+    .input-bar input{flex:1;padding:15px 20px;background:#f0f2f5;border-radius:30px}
+    .send-btn{width:56px;height:56px;background:#0088cc;color:#fff;border-radius:50%;font-size:24px;display:grid;place-items:center;cursor:pointer}
+    .user-item{padding:16px;display:flex;align-items:center;border-bottom:1px solid #eee;cursor:pointer}
+    .user-item img{width:52px;height:52px;border-radius:50%;margin-right:14px}
+    .hidden{display:none!important}
+    .empty{text-align:center;padding:80px 20px;color:#888;font-size:15px}
   </style>
 </head>
 <body>
-  <div class="app">
+<div class="app">
 
-    <!-- 1. Email kirish -->
-    <div id="authStep">
-      <div class="header">OrbicXs</div>
-      <div class="content">
-        <h2>Xush kelibsiz!</h2>
-        <input id="email" type="email" placeholder="email@gmail.com" />
-        <button onclick="sendMagicLink()">HAVOLA YUBORISH</button>
-        <p id="status" class="status"></p>
-      </div>
-    </div>
-
-    <!-- 2. Username tanlash -->
-    <div id="usernameStep" class="hidden">
-      <div class="header">Username tanlang</div>
-      <div class="content">
-        <input id="username" type="text" placeholder="@username" maxlength="30" />
-        <button onclick="saveUsername()">SAQLASH</button>
-        <p id="usernameStatus" class="status"></p>
-      </div>
-    </div>
-
-    <!-- 3. Chatlar ro‘yxati (faqat suhbatlashganlar) -->
-    <div id="usersStep" class="hidden">
-      <div class="header">Chatlar</div>
-      <div style="padding:16px;">
-        <input type="text" placeholder="Qidiruv..." oninput="debouncedSearch(this.value)"
-               style="width:100%; padding:14px 16px; border-radius:30px; background:#f0f2f5; border:none; font-size:16px;" />
-      </div>
-      <div id="userList" style="flex:1; overflow-y:auto;"></div>
-    </div>
-
-    <!-- 4. Chat oynasi -->
-    <div id="chatStep" class="hidden" style="display:flex; flex-direction:column; height:100dvh;">
-      <div class="header">
-        <div class="back" onclick="backToUsers()">Back</div>
-        <div id="chatWithName">Chat</div>
-      </div>
-      <div class="chat-body" id="messages"></div>
-      <div class="input-bar">
-        <input id="msgInput" placeholder="Xabar yozing..." 
-               onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMsg();}" />
-        <button onclick="sendMsg()" class="send-btn">Heart</button>
-      </div>
+  <!-- Email -->
+  <div id="auth">
+    <div class="header">OrbicXs</div>
+    <div class="content">
+      <h2>Xush kelibsiz!</h2>
+      <input id="email" type="email" placeholder="email@gmail.com">
+      <button onclick="login()">HAVOLA YUBORISH</button>
+      <p id="status" class="status"></p>
     </div>
   </div>
 
-  <script>
-    const SUPABASE_URL = 'https://acyozmmvrtvevbssoghh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <!-- Username -->
+  <div id="username" class="hidden">
+    <div class="header">Username tanlang</div>
+    <div class="content">
+      <input id="un" placeholder="@username" maxlength="30">
+      <button onclick="save()">SAQLASH</button>
+      <p id="ustatus" class="status"></p>
+    </div>
+  </div>
 
-    let currentUser = null;
-    let myUsername = '';
-    let currentChatWith = null;
-    let channel = null;
+  <!-- Chatlar ro‘yxati -->
+  <div id="list" class="hidden" style="display:flex;flex-direction:column;height:100dvh">
+    <div class="header">Chatlar</div>
+    <div style="padding:16px">
+      <input type="text" placeholder="Qidiruv..." oninput="search(this.value)" style="width:100%;padding:14px;border-radius:30px;background:#f0f2f5;border:none">
+    </div>
+    <div id="users" style="flex:1;overflow-y:auto"></div>
+  </div>
 
-    const getChatId = (a, b) => [a, b].sort().join('___');
+  <!-- Chat oynasi -->
+  <div id="chat" class="hidden" style="display:flex;flex-direction:column;height:100dvh">
+    <div class="header">
+      <div class="back" onclick="back()">←</div>
+      <div id="name">Chat</div>
+    </div>
+    <div class="chat-body" id="msgs"></div>
+    <div class="input-bar">
+      <input id="input" placeholder="Xabar..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}">
+      <button onclick="send()" class="send-btn">Send</button>
+    </div>
+  </div>
 
-    // Bildirishnoma so‘rash
-    async function requestNotification() {
-      if ("Notification" in window && Notification.permission === "default") {
-        await Notification.requestPermission();
-      }
+</div>
+
+<script>
+  const supabase = supabase.createClient(
+    'https://acyozmmvrtvevbssoghh.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzg4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A'
+  );
+
+  let me = null, myName = '', chatWith = null, channel = null;
+  const cid = (a,b) => [a,b].sort().join('___');
+
+  async function login() {
+    const e = document.getElementById('email').value.trim();
+    if(!e) return s('Email kiriting','error');
+    const {error} = await supabase.auth.signInWithOtp({email:e, options:{emailRedirectTo:location.href}});
+    s(error?error.message:'Havola yuborildi!','error'?'error':'success');
+  }
+
+  async function save() {
+    let u = document.getElementById('un').value.trim().replace(/^@+/,'');
+    if(u.length<3) return s('Kamida 3 belgi','error');
+    u = '@'+u.toLowerCase().replace(/[^a-z0-9_]/g,'');
+    const {data} = await supabase.from('profiles').select('id').eq('username',u).single();
+    if(data) return s('Band!','error');
+    await supabase.from('profiles').upsert({id:me.id, username:u});
+    myName = u;
+    await supabase.rpc('log_online');
+    show();
+  }
+
+  async function init() {
+    if(Notification.permission==="default") Notification.requestPermission();
+    const {data:{session}} = await supabase.auth.getSession();
+    if(session){ me=session.user; load(); }
+    supabase.auth.onAuthStateChange((_,s)=>{if(s){me=s.user;load()}});
+  }
+
+  async function load() {
+    const {data} = await supabase.from('profiles').select('username').eq('id',me.id).single();
+    if(data?.username){
+      myName = data.username;
+      await supabase.rpc('log_online');
+      show();
+    } else {
+      document.getElementById('auth').classList.add('hidden');
+      document.getElementById('username').classList.remove('hidden');
     }
+  }
 
-    function showNotification(sender, text) {
-      if (Notification.permission === "granted" && document.hidden) {
-        new Notification(`Yangi xabar – ${sender}`, {
-          body: text.length > 60 ? text.slice(0,57)+'...' : text,
-          icon: 'https://orbicxs.com/icon-192.png',
-          tag: 'orbicxs-chat',
-          vibrate: [200, 100, 200]
-        });
-        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      }
-    }
-
-    function status(text, type = 'success') {
-      const el = document.getElementById('status') || document.getElementById('usernameStatus');
-      if (el) { el.innerText = text; el.className = `status ${type}`; }
-    }
-
-    window.sendMagicLink = async () => {
-      const email = document.getElementById('email').value.trim();
-      if (!email) return status('Email kiriting!', 'error');
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: 'https://orbicxs.com' }
-      });
-      if (error) return status(error.message, 'error');
-      status('Havola yuborildi! Emailni tekshiring');
-    };
-
-    window.saveUsername = async () => {
-      let username = document.getElementById('username').value.trim();
-      if (!username) return status('Username kiriting!', 'error');
-      if (!username.startsWith('@')) username = '@' + username.replace(/^@+/, '');
-      username = username.toLowerCase();
-
-      const { error } = await supabase.from('profiles')
-        .upsert({ id: currentUser.id, username, email: currentUser.email }, { onConflict: 'id' });
-
-      if (error && error.code === '23505') return status('Bu username band!', 'error');
-      if (error) return status(error.message, 'error');
-
-      myUsername = username;
-      showChatsList();
-    };
-
-    async function checkAuth() {
-      if (location.hash) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) { currentUser = session.user; await loadProfile(); history.replaceState(null, null, '/'); }
-      } else {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) { currentUser = session.user; await loadProfile(); }
-      }
-    }
-
-    async function loadProfile() {
-      const { data } = await supabase.from('profiles').select('username').eq('id', currentUser.id).single();
-      if (data?.username) {
-        myUsername = data.username;
-        showChatsList();
-      } else {
-        document.getElementById('authStep').classList.add('hidden');
-        document.getElementById('usernameStep').classList.remove('hidden');
-      }
-    }
-
-    // Faqat suhbatlashganlar ro‘yxati
-    async function showChatsList() {
-      document.getElementById('authStep').classList.add('hidden');
-      document.getElementById('usernameStep').classList.add('hidden');
-      document.getElementById('usersStep').classList.remove('hidden');
-
-      const { data: msgs } = await supabase
-        .from('messages')
-        .select('chat_id, sender, text, created_at')
-        .order('created_at', { ascending: false });
-
-      const chats = {};
-      msgs?.forEach(m => {
-        const [u1, u2] = m.chat_id.split('___');
-        const other = u1 === myUsername ? u2 : u1;
-        if (other && other !== myUsername) {
-          if (!chats[other] || new Date(chats[other].time) < new Date(m.created_at)) {
-            chats[other] = { username: other, lastMsg: m.text, time: m.created_at, sender: m.sender };
-          }
-        }
-      });
-
-      const list = document.getElementById('userList');
-      list.innerHTML = Object.keys(chats).length === 0
-        ? `<div class="empty">Hozircha hech kim bilan suhbat yo‘q<br><br>Yangi odam toping yoki kuting</div>`
-        : '';
-
-      Object.values(chats)
-        .sort((a,b) => new Date(b.time) - new Date(a.time))
-        .forEach(c => {
-          const div = document.createElement('div');
-          div.className = 'user-item';
-          div.innerHTML = `
-            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.username)}&background=0088cc&color=fff&bold=true" />
-            <div class="info">
-              <div class="name">${c.username}</div>
-              <div class="preview">${c.sender === myUsername ? 'Siz: ' : ''}${c.lastMsg.length > 35 ? c.lastMsg.slice(0,32)+'...' : c.lastMsg}</div>
-            </div>
-          `;
-          div.onclick = () => openChat(c.username);
-          list.appendChild(div);
-        });
-    }
-
-    function openChat(username) {
-      currentChatWith = username;
-      document.getElementById('usersStep').classList.add('hidden');
-      document.getElementById('chatStep').classList.remove('hidden');
-      document.getElementById('chatWithName').textContent = username;
-      document.getElementById('messages').innerHTML = '';
-
-      if (channel) channel.unsubscribe();
-      const chatId = getChatId(myUsername, username);
-      channel = supabase.channel(`chat:${chatId}`);
-
-      channel.on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}`
-      }, payload => {
-        addMessage(payload.new);
-      }).subscribe();
-
-      supabase.from('messages')
-        .select()
-        .eq('chat_id', chatId)
-        .order('created_at', { ascending: true })
-        .then(res => res.data?.forEach(addMessage));
-    }
-
-    window.backToUsers = () => {
-      if (channel) { channel.unsubscribe(); channel = null; }
-      currentChatWith = null;
-      document.getElementById('chatStep').classList.add('hidden');
-      document.getElementById('usersStep').classList.remove('hidden');
-    };
-
-    window.sendMsg = async () => {
-      const input = document.getElementById('msgInput');
-      const text = input.value.trim();
-      if (!text || !currentChatWith) return;
-      const chatId = getChatId(myUsername, currentChatWith);
-      await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, text });
-      input.value = '';
-    };
-
-    function addMessage(m) {
-      const isSent = m.sender === myUsername;
-      const div = document.createElement('div');
-      div.className = `msg ${isSent ? 'sent' : 'received'}`;
-      const time = new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'});
-      div.innerHTML = `${m.text}<div class="msg-time">${time}</div>`;
-      document.getElementById('messages').appendChild(div);
-
-      const chatBody = document.querySelector('.chat-body');
-      chatBody.scrollTop = chatBody.scrollHeight;
-
-      // Bildirishnoma faqat boshqa odamdan kelganda
-      if (!isSent) showNotification(m.sender, m.text);
-    }
-
-    // Qidiruv (faqat chatlarda)
-    let sto;
-    window.debouncedSearch = (q) => {
-      clearTimeout(sto);
-      sto = setTimeout(() => showChatsList(), 400); // oddiy qayta yuklash
-    };
-
-    window.addEventListener('load', () => {
-      requestNotification();
-      checkAuth();
+  async function show(q=''){
+    ['auth','username'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    document.getElementById('list').classList.remove('hidden');
+    const {data} = await supabase.rpc('get_my_chats',{search_term:q});
+    const el = document.getElementById('users');
+    el.innerHTML = data?.length ? '' : '<div class="empty">Hozircha chat yo‘q</div>';
+    data?.forEach(c=>{
+      const d=document.createElement('div'); d.className='user-item';
+      d.innerHTML=`
+        <img src="https://ui-avatars.com/api/?name=${c.username}&background=0088cc&color=fff&bold=true">
+        <div>
+          <div style="font-weight:600">${c.username}</div>
+          <div style="font-size:13px;color:#666">${c.last_sender_username===myName?'Siz: ':''}${c.last_message?.slice(0,35)||'Yangi suhbat'}...</div>
+        </div>`;
+      d.onclick=()=>open(c.user_id, c.username);
+      el.appendChild(d);
     });
-  </script>
+  }
+
+  function open(id,name){
+    chatWith=id;
+    document.getElementById('name').textContent=name;
+    document.getElementById('list').classList.add('hidden');
+    document.getElementById('chat').classList.remove('hidden');
+    document.getElementById('msgs').innerHTML='';
+    if(channel) channel.unsubscribe();
+    const ch = cid(me.id,id);
+    channel = supabase.channel('c:'+ch)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`chat_id=eq.${ch}`},p=>add(p.new))
+      .subscribe();
+    supabase.from('messages').select('sender_id,text,created_at').eq('chat_id',ch).order('created_at')
+      .then(r=>r.data?.forEach(m=>add({sender_id:m.sender_id,text:m.text,created_at:m.created_at})));
+  }
+
+  async function send(){
+    const txt=document.getElementById('input').value.trim();
+    if(!txt||!chatWith) return;
+    await supabase.from('messages').insert({chat_id:cid(me.id,chatWith),sender_id:me.id,text:txt});
+    document.getElementById('input').value='';
+  }
+
+  function add(m){
+    const mine = m.sender_id===me.id;
+    const d=document.createElement('div'); d.className=`msg ${mine?'sent':'received'}`;
+    d.innerHTML=`${m.text}<div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    document.getElementById('msgs').appendChild(d);
+    document.querySelector('.chat-body').scrollTop=1e9;
+    if(!mine && document.hidden) new Notification('Yangi xabar',{body:m.text.slice(0,60)});
+  }
+
+  function back(){
+    if(channel) channel.unsubscribe(); channel=null; chatWith=null;
+    document.getElementById('chat').classList.add('hidden');
+    document.getElementById('list').classList.remove('hidden');
+    show();
+  }
+
+  let t; function search(v){clearTimeout(t);t=setTimeout(()=>show(v),400);}
+  function s(t,c){const e=document.getElementById('status')||document.getElementById('ustatus');if(e){e.textContent=t;e.className='status '+c;}}
+
+  window.addEventListener('load',init);
+  window.addEventListener('beforeunload',()=>supabase.rpc('log_offline'));
+  window.addEventListener('pagehide',()=>supabase.rpc('log_offline'));
+</script>
 </body>
 </html>
