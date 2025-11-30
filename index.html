@@ -1,216 +1,248 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OrbicXs</title>
-  <meta name="theme-color" content="#6e48aa">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>OrbicXs ∞ AI</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiT3JiaWNYcyIsInNob3J0X25hbWUiOiJPUkJJQ1hTIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiaWNvbnMiOlt7InNyYyI6Imljby5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dLCJ0aGVtZV9jb2xvciI6IiMwMDAiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzAwMCJ9">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     :root {
-      margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;
+      --bg: linear-gradient(135deg, #0f0f1e, #1a0b2e);
+      --card: rgba(20, 20, 40, 0.7);
+      --glass: rgba(255, 255, 255, 0.08);
+      --accent: #ff3366;
+      --text: #ffffff;
+      --text2: #aaaaaa;
     }
-    body,html{height:100dvh;overflow:hidden;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;justify-content:center;align-items:center;}
-    .app{width:100%;max-width:420px;height:100dvh;background:#fff;border-radius:24px 24px 0 0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;}
-    .header{background:linear-gradient(135deg,#6e48aa,#9d50bb);color:#fff;padding:20px 20px 60px;border-radius:24px 24px 0 0;position:relative;overflow:hidden;}
-    .header::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,rgba(255,255,255,0.1) 0%,transparent 50%);pointer-events:none;}
-    .header h1{font-size:26px;font-weight:700;letter-spacing:-0.5px;}
-    .header p{font-size:15px;opacity:0.9;margin-top:4px;}
-    .back{position:absolute;left:20px;bottom:18px;font-size:32px;cursor:pointer;z-index:10;}
-    .card{background:#fff;border-radius:20px;margin:-40px 16px 20px;padding:24px 20px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:5;position:relative;}
-    input,button{width:100%;padding:16px 20px;border-radius:16px;font-size:17px;border:none;outline:none;margin:10px 0;}
-    input{background:#f8f9fc;border:1px solid #eee;}
-    button{background:linear-gradient(135deg,#6e48aa,#9d50bb);color:#fff;font-weight:600;box-shadow:0 8px 20px rgba(110,72,170,0.4);}
-    .status{margin-top:10px;font-size:14px;text-align:center;}
-    .search-bar{padding:16px;background:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-    .search-bar input{background:#f1f3f6;padding:16px 20px;border-radius:20px;font-size:16px;}
-    .chat-list{flex:1;overflow-y:auto;background:#f8f9fc;}
-    .chat-item{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid #eee;cursor:pointer;transition:.2s;background:#fff;}
-    .chat-item:hover{background:#f0f0ff;}
-    .chat-item img{width:56px;height:56px;border-radius:50%;margin-right:16px;object-fit:cover;}
-    .chat-item .info{flex:1;}
-    .chat-item .name{font-weight:600;font-size:17px;color:#333;}
-    .chat-item .msg-preview{font-size:14px;color:#777;margin-top:4px;}
-    .chat-item .time{font-size:12px;color:#aaa;position:absolute;right:20px;}
-    .chat-body{flex:1;overflow-y:auto;background:#e5d5ff;padding:20px 16px 100px;display:flex;flex-direction:column;gap:12px;}
-    .message{max-width:78%;padding:12px 18px;border-radius:22px;position:relative;animation:pop 0.3s ease;}
-    @keyframes pop{from{transform:scale(0.8);opacity:0;}to{transform:scale(1);opacity:1;}}
-    .received{background:#fff;color:#000;box-shadow:0 4px 15px rgba(0,0,0,0.08);align-self:flex-start;border-bottom-left-radius:6px;}
-    .sent{background:linear-gradient(135deg,#6e48aa,#9d50bb);color:#fff;align-self:flex-end;border-bottom-right-radius:6px;box-shadow:0 6px 20px rgba(110,72,170,0.4);}
+    [data-theme="light"] {
+      --bg: linear-gradient(135deg, #f0f0ff, #e0e8ff);
+      --card: rgba(255, 255, 255, 0.9);
+      --glass: rgba(255, 255, 255, 0.6);
+      --accent: #ff3366;
+      --text: #000;
+      --text2: #555;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'SF Pro Display','Segoe UI',sans-serif;}
+    body,html{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:center;position:relative;}
+    body::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&q=80') center/cover;opacity:0.1;pointer-events:none;}
+    .app{width:100%;max-width:420px;height:100dvh;background:var(--card);backdrop-filter:blur(20px);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+    .header{background:linear-gradient(135deg,var(--accent),#9d00ff);padding:30px 20px 70px;text-align:center;position:relative;overflow:hidden;}
+    .header h1{font-size:42px;font-weight:900;letter-spacing:-2px;background:linear-gradient(90deg,#fff,#ccc);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:0 10px 30px rgba(0,0,0,0.5);}
+    .header p{font-size:18px;margin-top:8px;opacity:0.9;}
+    .card{background:var(--glass);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);border-radius:24px;margin:-50px 20px 30px;padding:30px;box-shadow:0 20px 40px rgba(0,0,0,0.3);}
+    input,button{width:100%;padding:18px;border-radius:18px;border:none;outline:none;font-size:17px;margin:12px 0;}
+    input{background:rgba(255,255,255,0.1);color:var(--text);padding:18px 20px;}
+    button{background:linear-gradient(135deg,var(--accent),#ff1a8c);color:#fff;font-weight:700;padding:18px;box-shadow:0 10px 30px rgba(255,51,102,0.4);}
+    .ai-suggest{margin-top:10px;font-size:14px;color:var(--text2);}
+    .theme-toggle{position:absolute;top:20px;right:20px;font-size:24px;cursor:pointer;z-index:100;}
+    .chat-list{flex:1;overflow-y:auto;background:transparent;padding:10px;}
+    .chat-item{background:var(--glass);backdrop-filter:blur(10px);margin:10px;border-radius:20px;padding:16px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:.3s;transform:translateY(20px);opacity:0;animation:slideUp 0.6s forwards;}
+    .chat-item:nth-child(1){animation-delay:0.1s;}
+    .chat-item:nth-child(2){animation-delay:0.2s;}
+    @keyframes slideUp{to{transform:translateY(0);opacity:1;}}
+    .chat-item img{width:60px;height:60px;border-radius:50%;border:3px solid var(--accent);box-shadow:0 8px 20px rgba(255,51,102,0.3);}
+    .chat-item .name{font-weight:700;font-size:18px;}
+    .chat-item .preview{font-size:14px;color:var(--text2);margin-top:4px;}
+    .chat-body{flex:1;overflow-y:auto;padding:20px 16px 120px;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23ffffff11"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');}
+    .msg{max-width:78%;padding:14px 20px;border-radius:24px;margin:8px 0;position:relative;animation:msgPop 0.4s;}
+    @keyframes msgPop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+    .received{background:var(--glass);backdrop-filter:blur(10px);align-self:flex-start;border-bottom-left-radius:6px;}
+    .sent{background:linear-gradient(135deg,var(--accent),#ff1a8c);align-self:flex-end;color:#fff;border-bottom-right-radius:6px;}
     .msg-time{font-size:11px;opacity:0.8;margin-top:6px;text-align:right;}
-    .input-area{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:16px 16px max(16px,env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(0,0,0,0.1);display:flex;gap:12px;align-items:center;max-width:420px;margin:0 auto;width:100%;}
-    .input-area input{flex:1;background:#f1f3f6;padding:16px 20px;border-radius:30px;font-size:16px;}
-    .send-fab{width:60px;height:60px;background:linear-gradient(135deg,#ff6b6b,#ee5a52);color:#fff;border-radius:50%;display:grid;place-items:center;font-size:28px;cursor:pointer;box-shadow:0 8px 25px rgba(255,107,107,0.5);transition:.3s;}
-    .send-fab:active{transform:scale(0.9);}
+    .input-bar{position:fixed;bottom:0;max-width:420px;width:100%;background:var(--card);backdrop-filter:blur(20px);padding:16px 16px max(16px,env(safe-area-inset-bottom));display:flex;gap:12px;align-items:center;box-shadow:0 -10px 30px rgba(0,0,0,0.3);}
+    .input-bar input{flex:1;background:var(--glass);padding:18px 22px;border-radius:30px;color:var(--text);font-size:16px;}
+    .voice-btn{width:50px;height:50px;background:var(--accent);border-radius:50%;display:grid;place-items:center;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 8px 25px rgba(255,51,102,0.6);}
     .hidden{display:none !important;}
-    .empty{text-align:center;padding:100px 20px;color:#888;font-size:16px;}
+    .loader{margin:50px auto;width:60px;height:60px;border:5px solid #fff;border-top:5px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
   </style>
 </head>
 <body>
+
 <div class="app">
 
-  <!-- Login -->
+  <!-- AI Login -->
   <div id="login">
+    <div class="theme-toggle" onclick="toggleTheme()">Moon/Sun</div>
     <div class="header">
-      <h1>OrbicXs</h1>
-      <p>Tez. Xavfsiz. Sehrli.</p>
+      <h1>ORBICXS</h1>
+      <p>Sun'iy intelekt bilan yaratilgan chat</p>
     </div>
     <div class="card">
-      <input id="email" type="email" placeholder="Email kiriting">
-      <button onclick="sendLink()">HAVOLA YUBORISH</button>
-      <div id="status" class="status"></div>
+      <input id="email" type="email" placeholder="Emailingizni kiriting">
+      <button onclick="sendAI()">SEHRLI HAVOLA YUBORISH</button>
+      <div id="status" style="margin-top:15px;color:#ff6b6b;"></div>
     </div>
   </div>
 
-  <!-- Username -->
-  <div id="username" class="hidden">
+  <!-- AI Username -->
+  <div id="aiName" class="hidden">
     <div class="header">
       <h1>Username tanlang</h1>
-      <p>Bir marta tanlaysiz</p>
+      <p>Men siz uchun 5 ta zo‘r variant tayyorladim</p>
     </div>
-    <div class="card">
-      <input id="uname" placeholder="@username" maxlength="25">
-      <button onclick="saveUname()">SAQLASH</button>
+    <div class="card" id="aiSuggestions">
+      <div class="loader"></div>
     </div>
   </div>
 
-  <!-- Chatlar ro'yxati -->
-  <div id="chats" class="hidden" style="display:flex;flex-direction:column;height:100dvh;">
+  <!-- Chatlar -->
+  <div id="home" class="hidden">
     <div class="header">
       <h1>Chatlar</h1>
-      <p>Siz bilan yozishganlar</p>
+      <p id="welcome"></p>
     </div>
     <div class="search-bar">
-      <input type="text" placeholder="Qidiruv..." oninput="search(this.value)">
+      <input type="text" placeholder="Kim bilan gaplashamiz? (AI tushunadi)" oninput="smartSearch(this.value)">
     </div>
-    <div class="chat-list" id="list"></div>
+    <div class="chat-list" id="chatList"></div>
   </div>
 
   <!-- Chat oynasi -->
-  <div id="chat" class="hidden" style="display:flex;flex-direction:column;height:100dvh;">
+  <div id="chat" class="hidden">
     <div class="header">
-      <div class="back" onclick="back()">Back</div>
-      <h1 id="withName">Chat</h1>
+      <div class="back" onclick="backHome()">Back</div>
+      <h1 id="chatName">Chat</h1>
     </div>
-    <div class="chat-body" id="msgs"></div>
-    <div class="input-area">
-      <input id="txt" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter')send()">
-      <div class="send-fab" onclick="send()">Heart</div>
+    <div class="chat-body" id="messages"></div>
+    <div class="input-bar">
+      <input id="msg" placeholder="Yozing yoki ovoz bilan..." onkeypress="if(event.key==='Enter')send()">
+      <div class="voice-btn" onclick="voice()">Mic</div>
     </div>
   </div>
 
 </div>
 
 <script>
-  const supabase = window.supabase.createClient('https://acyozmmvrtvevbssoghh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A');
-  let me = '', to = '', channel = null;
+  type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  const supabase = createClient('https://acyozmmvrtvevbssoghh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A');
 
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  let me = '', to = '', channel = null;
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('data:,');
   Notification.requestPermission();
 
-  async function sendLink(){
+  // AI username takliflari (haqiqiy ChatGPT emas, lekin juda zo‘r)
+  const aiNames = ["@neon","shadow","luna","phoenix","cyber","nova","ghost","blade","vortex","zen","alpha","echo","frost","storm","quantum"];
+  function getAINames(){
+    const suggestions = document.getElementById('aiSuggestions');
+    suggestions.innerHTML = '';
+    const used = new Set();
+    for(let i=0;i<5;i++){
+      let name;
+      do{name = aiNames[Math.floor(Math.random()*aiNames.length)] + Math.floor(Math.random()*99)}while(used.has(name));
+      used.add(name);
+      const btn = document.createElement('button');
+      btn.textContent = name;
+      btn.style.margin='8px 0';
+      btn.onclick = () => chooseName(name);
+      suggestions.appendChild(btn);
+    }
+  }
+
+  async function sendAI(){
     const email = document.getElementById('email').value.trim();
     if(!email) return;
     const {error} = await supabase.auth.signInWithOtp({email, options:{emailRedirectTo:location.origin}});
     document.getElementById('status').textContent = error?'Xato':'Havola yuborildi!';
   }
 
-  async function saveUname(){
-    let n = document.getElementById('uname').value.trim();
-    if(!n) return;
-    if(!n.startsWith('@')) n='@'+n;
+  async function chooseName(name){
     const {data:user} = await supabase.auth.getUser();
-    const {error} = await supabase.from('profiles').upsert({id:user.id, username:n.toLowerCase()});
-    if(error?.code==='23505') return alert('Bu username band!');
-    me = n.toLowerCase();
-    document.getElementById('username').classList.add('hidden');
-    document.getElementById('chats').classList.remove('hidden');
-    load();
+    await supabase.from('profiles').upsert({id:user.id, username:name.toLowerCase()});
+    me = name.toLowerCase();
+    document.getElementById('welcome').textContent = `Xush kelibsiz, ${name}!`;
+    document.getElementById('aiName').classList.add('hidden');
+    document.getElementById('home').classList.remove('hidden');
+    loadChats();
   }
 
-  async function load(filter=''){
-    const {data} = await supabase.from('messages').select('chat_id,sender,text,created_at').order('created_at',{ascending:false});
+  async function loadChats(filter=''){
+    const {data} = await supabase.from('messages').select('*').order('created_at',{ascending:false});
     const uniq = {};
     data?.forEach(m=>{
       const [a,b] = m.chat_id.split('___');
       const other = a===me ? b : a;
-      if(other && other!==me && other.includes(filter.toLowerCase())){
-        if(!uniq[other] || uniq[other].t < m.created_at) uniq[other] = {n:other, m:m.text||'Heart', t:m.created_at, s:m.sender};
+      if(other && other!==me && (filter==='' || other.includes(filter.toLowerCase()) || m.text.toLowerCase().includes(filter.toLowerCase()))){
+        if(!uniq[other] || uniq[other].t < m.created_at) uniq[other] = {n:other, m:m.text.slice(0,40), t:m.created_at};
       }
     });
-    const l = document.getElementById('list');
-    l.innerHTML = Object.keys(uniq).length===0 ? '<div class="empty">Hozircha chat yo‘q</div>' : '';
+    const list.innerHTML = Object.keys(uniq).length===0 ? '<div class="empty">Hozircha hech kim yo‘q<br>Yangi odamlar sizni topishini kuting</div>' : '';
     Object.values(uniq).sort((a,b)=>new Date(b.t)-new Date(a.t)).forEach(u=>{
       const d=document.createElement('div'); d.className='chat-item';
-      d.innerHTML=`<img src="https://ui-avatars.com/api/?name=${u.n}&background=6e48aa&color=fff&bold=true">
-        <div class="info"><div class="name">${u.n}</div><div class="msg-preview">${u.s===me?'Siz: ':''}${u.m.slice(0,40)}${u.m.length>40?'...':''}</div></div>
-        <div class="time">${new Date(u.t).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'})}</div>`;
-      d.onclick=_=>open(u.n);
-      l.appendChild(d);
+      d.innerHTML=`<img src="https://ui-avatars.com/api/?name=${u.n}&background=random&color=fff&bold=true&length=2">
+        <div><div class="name">${u.n}</div><div class="preview">${u.m}...</div></div>`;
+      d.onclick=()=>openChat(u.n);
+      list.appendChild(d);
     });
   }
 
-  function search(v){ load(v); }
+  function smartSearch(q){
+    loadChats(q);
+  }
 
-  function open(name){
+  function openChat(name){
     to = name;
-    document.getElementById('chats').classList.add('hidden');
+    document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.remove('hidden');
-    document.getElementById('withName').textContent = name;
-    document.getElementById('msgs').innerHTML='';
+    document.getElementById('chatName').textContent = name;
+    document.getElementById('messages').innerHTML='';
 
     const id = [me,to].sort().join('___');
     channel = supabase.channel(id);
-    channel.on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`chat_id=eq.${id}`},p=>add(p.new)).subscribe();
+    channel.on('postgres_changes',{event:'INSERT',table:'messages',filter:`chat_id=eq.${id}`},p=>showMsg(p.new)).subscribe();
 
-    supabase.from('messages').select().eq('chat_id',id).order('created_at').then(r=>r.data.forEach(add));
+    supabase.from('messages').select().eq('chat_id',id).order('created_at').then(r=>r.data.forEach(showMsg));
   }
 
-  function back(){
+  function backHome(){
     channel?.unsubscribe();
     document.getElementById('chat').classList.add('hidden');
-    document.getElementById('chats').classList.remove('hidden');
+    document.getElementById('home').classList.remove('hidden');
   }
 
   async function send(){
-    const t = document.getElementById('txt');
-    const msg = t.value.trim();
+    const msg = document.getElementById('msg').value.trim();
     if(!msg) return;
     const id = [me,to].sort().join('___');
     await supabase.from('messages').insert({chat_id:id, sender:me, text:msg});
-    t.value='';
+    document.getElementById('msg').value='';
   }
 
-  function add(m){
+  function showMsg(m){
     const mine = m.sender===me;
     const d=document.createElement('div');
-    d.className = `message ${mine?'sent':'received'}`;
+    d.className=`msg ${mine?'sent':'received'}`;
     d.innerHTML = `${m.text}<div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'})}</div>`;
-    document.getElementById('msgs').appendChild(d);
-    document.getElementById('msgs').scrollTop = 1e9;
-
-    if(!mine && Notification.permission==='granted'){
-      navigator.serviceWorker.ready.then(r=>r.showNotification(m.sender,{body:m.text,icon:'/icon-192.png'}));
-    }
+    document.getElementById('messages').appendChild(d);
+    document.getElementById('messages').scrollTop = 1e9;
   }
 
-  supabase.auth.onAuthStateChange((_,s)=>{
+  function voice(){
+    alert("Ovozli xabar tez kunda keladi!");
+  }
+
+  function toggleTheme(){
+    document.documentElement.dataset.theme = document.documentElement.dataset.theme==="dark"?"light":"dark";
+  }
+
+  // Auto login
+  supabase.auth.onAuthStateChange(async (_,s)=>{
     if(s?.user){
-      supabase.from('profiles').select('username').eq('id',s.user.id).single().then(r=>{
-        if(r.data?.username){
-          me = r.data.username;
-          document.getElementById('login').classList.add('hidden');
-          document.getElementById('chats').classList.remove('hidden');
-          load();
-        } else {
-          document.getElementById('login').classList.add('hidden');
-          document.getElementById('username').classList.remove('hidden');
-        }
-      });
+      const {data} = await supabase.from('profiles').select('username').eq('id',s.user.id).single();
+      if(data?.username){
+        me = data.username;
+        document.getElementById('login').classList.add('hidden');
+        document.getElementById('home').classList.remove('hidden');
+        document.getElementById('welcome').textContent = `Qaytganingizdan xursandmiz, ${me}!`;
+        loadChats();
+      } else {
+        document.getElementById('login').classList.add('hidden');
+        document.getElementById('aiName').classList.remove('hidden');
+        setTimeout(getAINames,1000);
+      }
     }
   });
 </script>
