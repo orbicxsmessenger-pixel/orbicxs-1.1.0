@@ -1,29 +1,51 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OrbicXs</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif;}
-    body{background:#f5f7fa;display:flex;justify-content:center;align-items:center;min-height:100vh;}
-    #authStep{text-align:center;width:90%;max-width:380px;}
-    #authStep img{width:140px;height:140px;border-radius:34px;box-shadow:0 12px 40px rgba(0,136,204,0.4);margin-bottom:20px;}
-    #authStep h1{font-size:48px;font-weight:700;color:#222;margin-bottom:60px;}
+    body{background:#f0f2f5;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+    .app{width:100%;max-width:420px;background:white;height:100vh;box-shadow:0 0 30px rgba(0,0,0,0.15);overflow:hidden;position:relative;}
+
+    /* EMAIL KIRISH */
+    #authStep{position:absolute;top:0;left:0;right:0;bottom:0;background:white;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;}
+    #authStep img{width:140px;height:140px;border-radius:34px;object-fit:cover;box-shadow:0 12px 40px rgba(0,136,204,0.4);margin-bottom:25px;}
+    #authStep h1{font-size:48px;font-weight:700;color:#222;margin-bottom:70px;}
     #authStep input{width:100%;padding:18px 20px;font-size:17px;border:none;border-radius:16px;background:#f0f2f5;margin-bottom:20px;outline:none;}
     #authStep button{width:100%;padding:18px;background:#0088cc;color:white;font-size:18px;border:none;border-radius:16px;cursor:pointer;box-shadow:0 8px 25px rgba(0,136,204,0.4);}
     #authStep button:hover{background:#006bb3;}
-    #status{margin-top:15px;font-size:15px;min-height:24px;color:#00c851;}
-    .hidden{display:none !important;}
-    .app{width:100%;max-width:420px;background:white;height:100vh;box-shadow:0 0 30px rgba(0,0,0,0.1);overflow:hidden;display:none;}
+
+    /* USERNAME TANLASH – YANGI LOGO QO‘SHILDI */
+    #usernameStep{
+      position:absolute;top:0;left:0;right:0;bottom:0;background:white;z-index:9998;
+      display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;
+    }
+    #usernameStep img{
+      width:110px;height:110px;border-radius:28px;object-fit:cover;box-shadow:0 10px 30px rgba(0,136,204,0.3);margin-bottom:40px;
+    }
+    #usernameStep h2{font-size:26px;color:#222;margin-bottom:15px;}
+    #usernameStep p{font-size:15px;color:#666;margin-bottom:30px;}
+    #usernameStep input{
+      width:100%;padding:18px;font-size:20px;border:2px solid #0088cc;border-radius:16px;margin-bottom:25px;text-align:center;outline:none;
+    }
+    #usernameStep button{
+      width:100%;padding:18px;background:#0088cc;color:white;font-size:18px;border:none;border-radius:16px;cursor:pointer;
+    }
+
+    /* QOLGAN QISMLAR */
     .header{background:#0088cc;color:white;padding:16px;font-size:18px;font-weight:500;text-align:center;position:relative;}
     .back{position:absolute;left:16px;top:14px;font-size:24px;cursor:pointer;}
-    .user-list{padding:10px;}
+    .search{padding:12px;}
+    .search input{width:100%;padding:14px 18px;border:none;background:#f0f2f5;border-radius:30px;font-size:16px;outline:none;}
+    .user-list{flex:1;overflow-y:auto;background:white;}
     .user-item{padding:16px;display:flex;align-items:center;border-bottom:1px solid #eee;cursor:pointer;}
     .user-item img{width:50px;height:50px;border-radius:50%;margin-right:15px;background:#ddd;}
-    .chat-view{display:flex;flex-direction:column;height:100vh;}
-    .messages{flex:1;padding:20px;overflow-y:auto;background:#efeae2;}
+    .user-item strong{font-size:17px;}
+    .chat-view{display:none;flex-direction:column;height:100vh;background:#efeae2;}
+    .messages{flex:1;padding:20px;overflow-y:auto;}
     .msg{max-width:80%;padding:12px 16px;border-radius:20px;margin:8px 0;word-wrap:break-word;}
     .sent{background:#00bfff;color:white;margin-left:auto;border-bottom-right-radius:4px;}
     .received{background:white;margin-right:auto;border-bottom-left-radius:4px;}
@@ -34,45 +56,47 @@
 </head>
 <body>
 
-  <!-- EMAIL OYNASI (faqat bir marta ko‘rinadi) -->
-  <div id="authStep">
-    <img src="logo.png" alt="OrbicXs">
-    <h1>OrbicXs</h1>
-    <input type="email" id="email" placeholder="name@email.com" autocomplete="email">
-    <button onclick="sendMagicLink()">Kirish</button>
-    <div id="status"></div>
-  </div>
+  <div class="app">
 
-  <!-- ASOSIY APP (kirgandan keyin faqat shu ko‘rinadi) -->
-  <div id="app" class="app">
-
-    <!-- USERNAME TANLASH -->
-    <div id="usernameStep" class="hidden">
-      <div class="header">Username tanlang</div>
-      <div style="padding:40px 20px;text-align:center;">
-        <input id="username" type="text" placeholder="@username" style="width:100%;padding:16px;font-size:17px;border-radius:12px;border:1px solid #ddd;margin-bottom:20px;">
-        <button onclick="saveUsername()" style="width:100%;padding:16px;background:#0088cc;color:white;border:none;border-radius:12px;font-size:17px;">SAQLASH</button>
-      </div>
+    <!-- 1. EMAIL KIRISH -->
+    <div id="authStep">
+      <img src="logo.png" alt="OrbicXs">
+      <h1>OrbicXs</h1>
+      <input type="email" id="email" placeholder="name@email.com" autocomplete="email">
+      <button onclick="sendMagicLink()">Kirish</button>
     </div>
 
-    <!-- FOYDALANUVCHILAR -->
-    <div id="usersStep" class="hidden">
-      <div class="header">Xabarlar</div>
+    <!-- 2. USERNAME TANLASH – LOGO QO‘SHILDI -->
+    <div id="usernameStep">
+      <img src="logo.png" alt="OrbicXs">
+      <h2>Username tanlang</h2>
+      <p>O‘zingizga yoqqan @username kiriting</p>
+      <input type="text" id="usernameInput" placeholder="@foydalanuvchi">
+      <button onclick="saveUsername()">Saqlash va kirish</button>
+    </div>
+
+    <!-- 3. ASOSIY CHAT RO‘YXATI -->
+    <div id="mainChat" style="display:none;flex-direction:column;height:100vh;">
+      <div class="header">OrbicXs</div>
+      <div class="search">
+        <input type="text" id="searchUser" placeholder="@username qidiring..." onkeypress="if(event.key==='Enter') startChatFromSearch()">
+      </div>
       <div class="user-list" id="userList"></div>
     </div>
 
-    <!-- CHAT -->
-    <div id="chatStep" class="hidden chat-view">
+    <!-- 4. CHAT OYNASI -->
+    <div id="chatView" class="chat-view">
       <div class="header">
-        <div class="back" onclick="backToUsers()">Back</div>
-        <div id="chatWithName"></div>
+        <span class="back" onclick="backToList()">←</span>
+        <span id="chatName"></span>
       </div>
       <div class="messages" id="messages"></div>
       <div class="input-bar">
-        <input id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMsg()">
-        <button onclick="sendMsg()">Send</button>
+        <input type="text" id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">➢</button>
       </div>
     </div>
+
   </div>
 
 <script>
@@ -82,48 +106,40 @@
   );
 
   let myUsername = '';
+  let chattingWith = '';
 
-  // 1. Kirish
   window.sendMagicLink = async () => {
     const email = document.getElementById('email').value.trim();
-    if (!email) return status('Email kiriting');
+    if (!email) return alert("Email kiriting");
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) status(error.message, 'error');
-    else status('Havola yuborildi! Emailni tekshiring', 'success');
+    if (error) alert(error.message);
+    else alert("Havola yuborildi!");
   };
 
-  // 2. Status
-  function status(text, type = 'success') {
-    const el = document.getElementById('status');
-    el.textContent = text;
-    el.style.color = type === 'error' ? '#ff4444' : '#00c851';
-  }
-
-  // 3. Appni ochish (email oynasini butunlay o‘chiradi)
-  function startApp() {
-    document.getElementById('authStep').remove();  // Butunlay o‘chiriladi!
-    document.getElementById('app').style.display = 'block';
-  }
-
-  // 4. Username saqlash
   window.saveUsername = async () => {
-    let u = document.getElementById('username').value.trim().toLowerCase();
-    if (!u) return alert('Username kiriting');
-    if (!u.startsWith('@')) u = '@' + u;
+    let u = document.getElementById('usernameInput').value.trim().toLowerCase();
+    if (!u) return alert("Username kiriting");
+    if (!u.startsWith('@')) u = '@' + u.replace(/@/g, '');
+    if (!/^[a-z0-9._]+$/.test(u.substring(1))) return alert("Faqat harf, raqam, _ va . ishlatish mumkin");
+
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from('profiles').upsert({
-      id: supabase.auth.getUser().then(r => r.data.user.id),
+      id: user.id,
       username: u,
-      email: supabase.auth.getUser().then(r => r.data.user.email)
-    });
-    if (error) return alert('Xato: ' + error.message);
+      email: user.email
+    }, { onConflict: 'id' });
+
+    if (error && error.code === '23505') return alert("Bu username band!");
+    if (error) return alert(error.message);
+
     myUsername = u;
-    document.getElementById('usernameStep').classList.add('hidden');
-    document.getElementById('usersStep').classList.remove('hidden');
-    loadUsers();
+    document.getElementById('authStep').remove();
+    document.getElementById('usernameStep').style.display = 'none';
+    document.getElementById('mainChat').style.display = 'flex';
+    loadAllUsers();
   };
 
-  // 5. Foydalanuvchilarni yuklash
-  async function loadUsers() {
+  async function loadAllUsers() {
     const { data } = await supabase.from('profiles').select('username');
     const list = document.getElementById('userList');
     list.innerHTML = '';
@@ -131,40 +147,84 @@
       if (p.username === myUsername) return;
       const div = document.createElement('div');
       div.className = 'user-item';
-      div.innerHTML = `<img src="https://via.placeholder.com/50"><div><strong>${p.username}</strong></div>`;
-      div.onclick = () => openChat(p.username);
+      div.innerHTML = `<img src="https://via.placeholder.com/50"><strong>${p.username}</strong>`;
+      div.onclick = () => startChat(p.username);
       list.appendChild(div);
     });
   }
 
-  // 6. Chat funksiyalari
-  function openChat(u) {
-    document.getElementById('usersStep').classList.add('hidden');
-    document.getElementById('chatStep').classList.remove('hidden');
-    document.getElementById('chatWithName').textContent = u;
-    // loadMessages() qo‘shishing mumkin
-  }
-  window.backToUsers = () => {
-    document.getElementById('chatStep').classList.add('hidden');
-    document.getElementById('usersStep').classList.remove('hidden');
+  window.startChatFromSearch = () => {
+    let u = document.getElementById('searchUser').value.trim().toLowerCase();
+    if (!u) return;
+    if (!u.startsWith('@')) u = '@' + u;
+    document.getElementById('searchUser').value = '';
+    if (u === myUsername) return alert("O‘zing bilan yozisholmaysan :)");
+    startChat(u);
   };
-  window.sendMsg = () => alert('Xabar yuborildi (keyinroq ulaymiz)');
 
-  // ENDI ENG ASOSIY QISM – AVTO KIRISH
-  supabase.auth.getSession().then(async ({ data: { session } }) => {
-    if (session) {
-      startApp();  // Email oynasini butunlay o‘chiradi
-      const { data } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
-      if (data?.username) {
-        myUsername = data.username;
-        document.getElementById('usersStep').classList.remove('hidden');
-        loadUsers();
-      } else {
-        document.getElementById('usernameStep').classList.remove('hidden');
-      }
+  function startChat(username) {
+    chattingWith = username;
+    document.getElementById('mainChat').style.display = 'none';
+    document.getElementById('chatView').style.display = 'flex';
+    document.getElementById('chatName').textContent = username;
+    document.getElementById('messages').innerHTML = '';
+    loadMessages();
+  }
+
+  function backToList() {
+    document.getElementById('chatView').style.display = 'none';
+    document.getElementById('mainChat').style.display = 'flex';
+  }
+
+  window.sendMessage = async () => {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const chatId = [myUsername, chattingWith].sort().join('_');
+    await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, text });
+    input.value = '';
+  };
+
+  function loadMessages() {
+    const chatId = [myUsername, chattingWith].sort().join('_');
+    supabase.channel(`chat:${chatId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, p => showMessage(p.new))
+      .subscribe();
+
+    supabase.from('messages').select().eq('chat_id', chatId).order('created_at', { ascending: true })
+      .then(({ data }) => data.forEach(showMessage));
+  }
+
+  function showMessage(m) {
+    const isMe = m.sender === myUsername;
+    const div = document.createElement('div');
+    div.className = `msg ${isMe ? 'sent' : 'received'}`;
+    div.innerHTML = `${m.text}<small style="opacity:0.7;font-size:11px;display:block;margin-top:4px;text-align:${isMe?'right':''}">
+      ${new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}
+    </small>`;
+    document.getElementById('messages').appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // HAVOLA BOSILGANDA TO‘G‘RIDAN KIRISH
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (!session) return;
+    const { data } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
+    
+    document.getElementById('authStep')?.remove();
+    document.getElementById('usernameStep').style.display = 'none';
+
+    if (data?.username) {
+      myUsername = data.username;
+      document.getElementById('mainChat').style.display = 'flex';
+      loadAllUsers();
+    } else {
+      document.getElementById('usernameStep').style.display = 'flex';
     }
   });
 
+  // Sahifa yuklanganda tekshirish
+  window.onload = () => supabase.auth.getSession().then(s => s.data.session && supabase.auth.onAuthStateChange());
 </script>
 </body>
 </html>
