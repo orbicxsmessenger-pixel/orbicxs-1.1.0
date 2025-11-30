@@ -34,9 +34,50 @@
     .sent { background:#00bfff; color:white; margin-left:auto; border-bottom-right-radius:4px; }
     .received { background:white; margin-right:auto; border-bottom-left-radius:4px; }
     .msg-time { font-size:11px; opacity:0.8; margin-top:5px; text-align:right; }
-    .input-bar { padding:10px; background:white; border-top:1px solid #eee; display:flex; align-items:center; gap:10px; }
-    .input-bar input { flex:1; padding:14px 18px; border:none; background:#f0f2f5; border-radius:30px; font-size:16px; }
-    .input-bar button { width:48px; height:48px; background:#0088cc; color:white; border:none; border-radius:50%; cursor:pointer; font-size:20px; }
+    
+    /* YANGI — ❤️ tugmasi oq fonda */
+    .input-bar {
+      padding: 10px;
+      background: white;
+      border-top: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .input-bar input {
+      flex: 1;
+      padding: 14px 18px;
+      border: none;
+      background: #f0f2f5;
+      border-radius: 30px;
+      font-size: 16px;
+      outline: none;
+    }
+    .input-bar .send-btn {
+      width: 52px;
+      height: 52px;
+      background: white;
+      color: #e74c3c;
+      border: 2.5px solid #e74c3c;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+    }
+    .input-bar .send-btn:hover {
+      background: #e74c3c;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    }
+    .input-bar .send-btn:active {
+      transform: scale(0.95);
+    }
+    
     .hidden { display:none !important; }
     .empty { text-align:center; color:#888; margin-top:80px; font-size:15px; line-height:1.6; }
   </style>
@@ -78,13 +119,14 @@
     <!-- Chat oynasi -->
     <div id="chatStep" class="hidden chat-view">
       <div class="header">
-        <div class="back" onclick="backToUsers()">←</div>
+        <div class="back" onclick="backToUsers()">Back</div>
         <div id="chatWithName">Chat</div>
       </div>
       <div class="messages" id="messages"></div>
       <div class="input-bar">
-        <input id="msgInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMsg();}" />
-        <button onclick="sendMsg()">❤️</button>
+        <input id="msgInput" placeholder="Xabar yozing..." 
+               onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMsg();}" />
+        <button onclick="sendMsg()" class="send-btn">❤️</button>
       </div>
     </div>
   </div>
@@ -106,23 +148,17 @@
       if (el) { el.innerText = text; el.className = type === 'error' ? 'error' : 'success'; }
     }
 
-    // Magic link yuborish — https://orbicxs.com uchun
     window.sendMagicLink = async () => {
       const email = document.getElementById('email').value.trim();
       if (!email) return status('Email kiriting!', 'error');
-
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: 'https://orbicxs.com'  // MUHIM: faqat shu domen
-        }
+        options: { emailRedirectTo: 'https://orbicxs.com' }
       });
-
       if (error) return status('Xato: ' + error.message, 'error');
       status('Havola yuborildi! Emailni tekshiring');
     };
 
-    // Username saqlash
     window.saveUsername = async () => {
       let username = document.getElementById('username').value.trim();
       if (!username) return status('Username kiriting!', 'error');
@@ -139,21 +175,16 @@
       showUsersList();
     };
 
-    // Sessionni tekshirish va sahifani boshqarish
     async function checkAuth() {
-      // Magic linkdan kelgan bo‘lsa hash (#access_token=...) bo‘ladi
       if (window.location.hash) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           currentUser = session.user;
           await loadUserProfile();
-          // URLni tozalash
           history.replaceState(null, null, window.location.pathname);
           return;
         }
       }
-
-      // Oddiy kirish
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         currentUser = session.user;
@@ -161,16 +192,9 @@
       }
     }
 
-    // Profilni yuklash
     async function loadUserProfile() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', currentUser.id)
-        .single();
-
+      const { data, error } = await supabase.from('profiles').select('username').eq('id', currentUser.id).single();
       if (error && error.code !== 'PGRST116') return console.error(error);
-
       if (data?.username) {
         myUsername = data.username;
         showUsersList();
@@ -180,7 +204,6 @@
       }
     }
 
-    // Foydalanuvchilar ro‘yxati
     async function showUsersList() {
       document.getElementById('authStep').classList.add('hidden');
       document.getElementById('usernameStep').classList.add('hidden');
@@ -189,13 +212,11 @@
       const { data } = await supabase.from('profiles').select('username').order('username');
       const list = document.getElementById('userList');
       list.innerHTML = '';
-
       const others = data.filter(u => u.username !== myUsername);
       if (others.length === 0) {
         list.innerHTML = `<div class="empty">Hozircha boshqa odam yo‘q<br><br>Do‘stlaringizni taklif qiling!</div>`;
         return;
       }
-
       others.forEach(u => {
         const div = document.createElement('div');
         div.className = 'user-item';
@@ -211,21 +232,14 @@
       });
     }
 
-    // Qidiruv
     let searchTimeout;
     window.debouncedSearch = (q) => {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => searchUsers(q), 300);
     };
-
     window.searchUsers = async (query) => {
       if (!query.trim()) return showUsersList();
-      const { data } = await supabase
-        .from('profiles')
-        .select('username')
-        .ilike('username', `%${query.trim()}%`)
-        .neq('username', myUsername);
-
+      const { data } = await supabase.from('profiles').select('username').ilike('username', `%${query.trim()}%`).neq('username', myUsername);
       const list = document.getElementById('userList');
       list.innerHTML = '';
       if (!data || data.length === 0) {
@@ -242,25 +256,18 @@
       });
     };
 
-    // Chat funksiyalari
     function openChat(username) {
       currentChatWith = username;
       document.getElementById('usersStep').classList.add('hidden');
       document.getElementById('chatStep').classList.remove('hidden');
       document.getElementById('chatWithName').textContent = username;
       document.getElementById('messages').innerHTML = '';
-
       if (channel) channel.unsubscribe();
       const chatId = getChatId(myUsername, username);
       channel = supabase.channel(`chat:${chatId}`);
-      channel.on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}`
-      }, payload => addMessage(payload.new)).subscribe();
-
-      supabase.from('messages')
-        .select()
-        .eq('chat_id', chatId)
-        .order('created_at', { ascending: true })
+      channel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, 
+        payload => addMessage(payload.new)).subscribe();
+      supabase.from('messages').select().eq('chat_id', chatId).order('created_at', { ascending: true })
         .then(res => res.data?.forEach(addMessage));
     }
 
@@ -290,7 +297,6 @@
       div.scrollIntoView({ behavior:'smooth', block:'end' });
     }
 
-    // Sahifa yuklanganda avto kirish
     window.addEventListener('load', checkAuth);
   </script>
 </body>
