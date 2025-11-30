@@ -1,247 +1,212 @@
 <!DOCTYPE html>
-<html lang="uz" data-theme="dark">
+<html lang="uz">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OrbicXs ∞ AI</title>
-  <meta name="theme-color" content="#000000">
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiT3JiaWNYcyIsInNob3J0X25hbWUiOiJPUkJJQ1hTIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiaWNvbnMiOlt7InNyYyI6Imljby5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dLCJ0aGVtZV9jb2xvciI6IiMwMDAiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzAwMCJ9">
+  <title>ORBICXS</title>
+  <meta name="theme-color" content="#000">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --bg: linear-gradient(135deg, #0f0f1e, #1a0b2e);
-      --card: rgba(20, 20, 40, 0.7);
-      --glass: rgba(255, 255, 255, 0.08);
-      --accent: #ff3366;
-      --text: #ffffff;
-      --text2: #aaaaaa;
-    }
-    [data-theme="light"] {
-      --bg: linear-gradient(135deg, #f0f0ff, #e0e8ff);
-      --card: rgba(255, 255, 255, 0.9);
-      --glass: rgba(255, 255, 255, 0.6);
-      --accent: #ff3366;
-      --text: #000;
-      --text2: #555;
-    }
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'SF Pro Display','Segoe UI',sans-serif;}
-    body,html{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:center;position:relative;}
-    body::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&q=80') center/cover;opacity:0.1;pointer-events:none;}
-    .app{width:100%;max-width:420px;height:100dvh;background:var(--card);backdrop-filter:blur(20px);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
-    .header{background:linear-gradient(135deg,var(--accent),#9d00ff);padding:30px 20px 70px;text-align:center;position:relative;overflow:hidden;}
-    .header h1{font-size:42px;font-weight:900;letter-spacing:-2px;background:linear-gradient(90deg,#fff,#ccc);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:0 10px 30px rgba(0,0,0,0.5);}
-    .header p{font-size:18px;margin-top:8px;opacity:0.9;}
-    .card{background:var(--glass);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);border-radius:24px;margin:-50px 20px 30px;padding:30px;box-shadow:0 20px 40px rgba(0,0,0,0.3);}
-    input,button{width:100%;padding:18px;border-radius:18px;border:none;outline:none;font-size:17px;margin:12px 0;}
-    input{background:rgba(255,255,255,0.1);color:var(--text);padding:18px 20px;}
-    button{background:linear-gradient(135deg,var(--accent),#ff1a8c);color:#fff;font-weight:700;padding:18px;box-shadow:0 10px 30px rgba(255,51,102,0.4);}
-    .ai-suggest{margin-top:10px;font-size:14px;color:var(--text2);}
-    .theme-toggle{position:absolute;top:20px;right:20px;font-size:24px;cursor:pointer;z-index:100;}
-    .chat-list{flex:1;overflow-y:auto;background:transparent;padding:10px;}
-    .chat-item{background:var(--glass);backdrop-filter:blur(10px);margin:10px;border-radius:20px;padding:16px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:.3s;transform:translateY(20px);opacity:0;animation:slideUp 0.6s forwards;}
-    .chat-item:nth-child(1){animation-delay:0.1s;}
-    .chat-item:nth-child(2){animation-delay:0.2s;}
-    @keyframes slideUp{to{transform:translateY(0);opacity:1;}}
-    .chat-item img{width:60px;height:60px;border-radius:50%;border:3px solid var(--accent);box-shadow:0 8px 20px rgba(255,51,102,0.3);}
-    .chat-item .name{font-weight:700;font-size:18px;}
-    .chat-item .preview{font-size:14px;color:var(--text2);margin-top:4px;}
-    .chat-body{flex:1;overflow-y:auto;padding:20px 16px 120px;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23ffffff11"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');}
-    .msg{max-width:78%;padding:14px 20px;border-radius:24px;margin:8px 0;position:relative;animation:msgPop 0.4s;}
-    @keyframes msgPop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
-    .received{background:var(--glass);backdrop-filter:blur(10px);align-self:flex-start;border-bottom-left-radius:6px;}
-    .sent{background:linear-gradient(135deg,var(--accent),#ff1a8c);align-self:flex-end;color:#fff;border-bottom-right-radius:6px;}
-    .msg-time{font-size:11px;opacity:0.8;margin-top:6px;text-align:right;}
-    .input-bar{position:fixed;bottom:0;max-width:420px;width:100%;background:var(--card);backdrop-filter:blur(20px);padding:16px 16px max(16px,env(safe-area-inset-bottom));display:flex;gap:12px;align-items:center;box-shadow:0 -10px 30px rgba(0,0,0,0.3);}
-    .input-bar input{flex:1;background:var(--glass);padding:18px 22px;border-radius:30px;color:var(--text);font-size:16px;}
-    .voice-btn{width:50px;height:50px;background:var(--accent);border-radius:50%;display:grid;place-items:center;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 8px 25px rgba(255,51,102,0.6);}
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Exo+2:wght@300;500;700&display=swap');
+    
+    :root{--accent:#00ffea;--accent2:#ff00aa;--bg:#000000;--glass:rgba(10,10,30,0.7);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body,html{height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:'Exo 2',sans-serif;position:relative;}
+    
+    .stars{background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="g"><stop offset="0%" stop-color="%23fff"/><stop offset="100%" stop-color="%23000"/></radialGradient></defs><circle cx="100" cy="100" r="2" fill="%23fff"/><circle cx="300" cy="200" r="1.5" fill="%23fff"/><circle cx="700" cy="300" r="2" fill="%23fff"/><circle cx="900" cy="800" r="1.8" fill="%23fff"/><circle cx="500" cy="600" r="2.5" fill="%23fff"/></svg>');animation:stars 120s linear infinite;}
+    @keyframes stars{from{background-position:0 0;}to{background-position:1000px 1000px;}}
+    
+    .app{width:100%;max-width:420px;height:100dvh;margin:auto;background:var(--glass);backdrop-filter:blur(30px);border:1px solid rgba(0,255,234,0.2);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+    
+    .header{position:relative;padding:60px 20px 100px;text-align:center;overflow:hidden;}
+    .header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,255,234,0.15),transparent 70%);pointer-events:none;}
+    .header h1{font-family:'Orbitron',sans-serif;font-size:48px;letter-spacing:8px;background:linear-gradient(90deg,#00ffea,#ff00aa,#00ffea);background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:glow 4s linear infinite;}
+    @keyframes glow{0%,100%{background-position:0%;}50%{background-position:200%;}}
+    
+    .card{background:rgba(15,15,40,0.8);border:1px solid rgba(0,255,234,0.3);border-radius:30px;margin:-70px 24px 30px;padding:40px 30px;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,255,234,0.1);}
+    
+    input{width:100%;padding:20px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,255,234,0.4);color:#fff;font-size:18px;margin:15px 0;outline:none;transition:.4s;}
+    input:focus{border-color:#00ffea;box-shadow:0 0 30px rgba(0,255,234,0.4);}
+    
+    button{width:100%;padding:20px;border-radius:20px;background:linear-gradient(45deg,var(--accent),var(--accent2));border:none;color:#000;font-weight:700;font-size:18px;cursor:pointer;box-shadow:0 10px 40px rgba(0,255,234,0.4);transition:.4s;}
+    button:active{transform:scale(0.95);box-shadow:0 20px 60px rgba(255,0,170,0.6);}
+    
+    .scene{flex:1;overflow:hidden;position:relative;}
+    .chat-list{padding:20px 10px;display:grid;gap:16px;}
+    .chat-item{background:rgba(20,20,60,0.6);border-radius:24px;padding:18px;display:flex;align-items:center;gap:18px;cursor:pointer;transition:.4s;animation:float 6s ease-in-out infinite;border:1px solid rgba(0,255,234,0.2);}
+    .chat-item:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,255,234,0.2);}
+    .chat-item img{width:64px;height:64px;border-radius:50%;border:3px solid var(--accent);box-shadow:0 0 30px rgba(0,255,234,0.4);}
+    .name{font-size:20px;font-weight:700;background:linear-gradient(90deg,#00ffea,#ff00aa);background-clip:text;-webkit-background-clip:text;color:transparent;}
+    
+    .chat-body{flex:1;overflow-y:auto;padding:30px 20px 140px;background:radial-gradient(circle at 50% 100%,rgba(0,255,234,0.05),transparent);}
+    .msg{max-width:80%;padding:16px 24px;border-radius:28px;margin:12px 0;position:relative;animation:msgIn 0.6s cubic-bezier(0.18,0.89,0.32,1.28);}
+    @keyframes msgIn{from{transform:translateY(50px) scale(0.8);opacity:0;}to{transform:none;opacity:1;}}
+    .received{background:rgba(0,255,234,0.15);backdrop-filter:blur(10px);border:1px solid rgba(0,255,234,0.3);align-self:flex-start;color:#fff;}
+    .sent{background:linear-gradient(135deg,var(--accent),var(--accent2));align-self:flex-end;color:#000;box-shadow:0 10px 30px rgba(255,0,170,0.4);}
+    
+    .input-bar{position:fixed;bottom:0;max-width:420px;width:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(30px);padding:20px 20px max(20px,env(safe-area-inset-bottom));display:flex;gap:16px;align-items:center;border-top:1px solid rgba(0,255,234,0.2);}
+    .input-bar input{flex:1;background:rgba(255,255,255,0.1);padding:20px 24px;border-radius:40px;border:1px solid rgba(0,255,234,0.4);color:#fff;font-size:17px;}
+    .send-btn{width:64px;height:64px;background:radial-gradient(circle,var(--accent),#00aaff);border-radius:50%;display:grid;place-items:center;font-size:32px;box-shadow:0 0 40px rgba(0,255,234,0.8);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(0,255,234,0.8);}50%{box-shadow:0 0 80px rgba(0,255,234,1);}}
+    
     .hidden{display:none !important;}
-    .loader{margin:50px auto;width:60px;height:60px;border:5px solid #fff;border-top:5px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+    .loader{margin:60px auto;width:80px;height:80px;border:6px solid #111;border-top:6px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg);}}
   </style>
 </head>
-<body>
+<body class="stars">
 
 <div class="app">
 
-  <!-- AI Login -->
+  <!-- Kirish -->
   <div id="login">
-    <div class="theme-toggle" onclick="toggleTheme()">Moon/Sun</div>
     <div class="header">
       <h1>ORBICXS</h1>
-      <p>Sun'iy intelekt bilan yaratilgan chat</p>
     </div>
     <div class="card">
-      <input id="email" type="email" placeholder="Emailingizni kiriting">
-      <button onclick="sendAI()">SEHRLI HAVOLA YUBORISH</button>
-      <div id="status" style="margin-top:15px;color:#ff6b6b;"></div>
+      <input id="email" type="email" placeholder="Maxfiy emailingiz">
+      <button onclick="sendMagic()">MAXFIY HAVOLA YUBORISH</button>
+      <div id="status" style="margin-top:20px;font-size:16px;text-align:center;"></div>
     </div>
   </div>
 
-  <!-- AI Username -->
-  <div id="aiName" class="hidden">
-    <div class="header">
-      <h1>Username tanlang</h1>
-      <p>Men siz uchun 5 ta zo‘r variant tayyorladim</p>
-    </div>
-    <div class="card" id="aiSuggestions">
-      <div class="loader"></div>
+  <!-- Username -->
+  <div id="username" class="hidden">
+    <div class="header"><h1>Kod nomi</h1></div>
+    <div class="card">
+      <input id="code" placeholder="Maxfiy kod nomi (@bilan)">
+      <button onclick="activate()">FAOLLASHTIRISH</button>
     </div>
   </div>
 
   <!-- Chatlar -->
   <div id="home" class="hidden">
-    <div class="header">
-      <h1>Chatlar</h1>
-      <p id="welcome"></p>
+    <div class="header"><h1 id="myName">AGENT</h1></div>
+    <div class="scene">
+      <div class="chat-list" id="agents"></div>
     </div>
-    <div class="search-bar">
-      <input type="text" placeholder="Kim bilan gaplashamiz? (AI tushunadi)" oninput="smartSearch(this.value)">
-    </div>
-    <div class="chat-list" id="chatList"></div>
   </div>
 
-  <!-- Chat oynasi -->
+  <!-- Chat -->
   <div id="chat" class="hidden">
     <div class="header">
-      <div class="back" onclick="backHome()">Back</div>
-      <h1 id="chatName">Chat</h1>
+      <div onclick="back()" style="position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:32px;cursor:pointer;">Back</div>
+      <h1 id="target">TARGET</h1>
     </div>
-    <div class="chat-body" id="messages"></div>
+    <div class="chat-body" id="msgArea"></div>
     <div class="input-bar">
-      <input id="msg" placeholder="Yozing yoki ovoz bilan..." onkeypress="if(event.key==='Enter')send()">
-      <div class="voice-btn" onclick="voice()">Mic</div>
+      <input id="input" placeholder="Maxfiy xabar...">
+      <div class="send-btn" onclick="send()">Heart</div>
     </div>
   </div>
 
 </div>
 
 <script>
-  type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-  const supabase = createClient('https://acyozmmvrtvevbssoghh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A');
+  const supabase = window.supabase.createClient(
+    'https://acyozmmvrtvevbssoghh.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A'
+  );
 
-  let me = '', to = '', channel = null;
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('data:,');
+  let ME = '', TARGET = '', channel = null;
+
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
   Notification.requestPermission();
 
-  // AI username takliflari (haqiqiy ChatGPT emas, lekin juda zo‘r)
-  const aiNames = ["@neon","shadow","luna","phoenix","cyber","nova","ghost","blade","vortex","zen","alpha","echo","frost","storm","quantum"];
-  function getAINames(){
-    const suggestions = document.getElementById('aiSuggestions');
-    suggestions.innerHTML = '';
-    const used = new Set();
-    for(let i=0;i<5;i++){
-      let name;
-      do{name = aiNames[Math.floor(Math.random()*aiNames.length)] + Math.floor(Math.random()*99)}while(used.has(name));
-      used.add(name);
-      const btn = document.createElement('button');
-      btn.textContent = name;
-      btn.style.margin='8px 0';
-      btn.onclick = () => chooseName(name);
-      suggestions.appendChild(btn);
-    }
-  }
-
-  async function sendAI(){
+  window.sendMagic = async () => {
     const email = document.getElementById('email').value.trim();
     if(!email) return;
-    const {error} = await supabase.auth.signInWithOtp({email, options:{emailRedirectTo:location.origin}});
-    document.getElementById('status').textContent = error?'Xato':'Havola yuborildi!';
-  }
+    const {error} = await supabase.auth.signInWithOtp({email, options:{emailRedirectTo:location.href}});
+    document.getElementById('status').textContent = error ? 'Xato!' : 'Maxfiy havola yuborildi!';
+  };
 
-  async function chooseName(name){
-    const {data:user} = await supabase.auth.getUser();
-    await supabase.from('profiles').upsert({id:user.id, username:name.toLowerCase()});
-    me = name.toLowerCase();
-    document.getElementById('welcome').textContent = `Xush kelibsiz, ${name}!`;
-    document.getElementById('aiName').classList.add('hidden');
+  window.activate = async () => {
+    let name = document.getElementById('code').value.trim().toLowerCase();
+    if(!name) return;
+    if(!name.startsWith('@')) name = '@'+name;
+    const {data:{user}} = await supabase.auth.getUser();
+    const {error} = await supabase.from('profiles').upsert({id:user.id, username:name});
+    if(error?.code==='23505') return alert('Bu kod band!');
+    ME = name;
+    document.getElementById('myName').textContent = ME;
+    document.getElementById('username').classList.add('hidden');
     document.getElementById('home').classList.remove('hidden');
-    loadChats();
-  }
+    loadAgents();
+  };
 
-  async function loadChats(filter=''){
+  async function loadAgents(){
     const {data} = await supabase.from('messages').select('*').order('created_at',{ascending:false});
-    const uniq = {};
+    const list = new Set();
     data?.forEach(m=>{
       const [a,b] = m.chat_id.split('___');
-      const other = a===me ? b : a;
-      if(other && other!==me && (filter==='' || other.includes(filter.toLowerCase()) || m.text.toLowerCase().includes(filter.toLowerCase()))){
-        if(!uniq[other] || uniq[other].t < m.created_at) uniq[other] = {n:other, m:m.text.slice(0,40), t:m.created_at};
-      }
+      const other = a===ME ? b : a;
+      if(other && other!==ME) list.add(other);
     });
-    const list.innerHTML = Object.keys(uniq).length===0 ? '<div class="empty">Hozircha hech kim yo‘q<br>Yangi odamlar sizni topishini kuting</div>' : '';
-    Object.values(uniq).sort((a,b)=>new Date(b.t)-new Date(a.t)).forEach(u=>{
-      const d=document.createElement('div'); d.className='chat-item';
-      d.innerHTML=`<img src="https://ui-avatars.com/api/?name=${u.n}&background=random&color=fff&bold=true&length=2">
-        <div><div class="name">${u.n}</div><div class="preview">${u.m}...</div></div>`;
-      d.onclick=()=>openChat(u.n);
-      list.appendChild(d);
+    const container = document.getElementById('agents');
+    container.innerHTML = '';
+    [...list].forEach(name=>{
+      const div = document.createElement('div');
+      div.className='chat-item';
+      div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${name}&background=0ff&color=000&bold=true">
+        <div><div class="name">${name}</div><div style="color:#0ff;margin-top:6px;">Oxirgi faollik: hozir</div></div>`;
+      div.onclick = () => openTarget(name);
+      container.appendChild(div);
     });
   }
 
-  function smartSearch(q){
-    loadChats(q);
-  }
-
-  function openChat(name){
-    to = name;
+  function openTarget(name){
+    TARGET = name;
+    document.getElementById('target').textContent = name;
     document.getElementById('home').classList.add('hidden');
     document.getElementById('chat').classList.remove('hidden');
-    document.getElementById('chatName').textContent = name;
-    document.getElementById('messages').innerHTML='';
-
-    const id = [me,to].sort().join('___');
+    document.getElementById('msgArea').innerHTML = '';
+    
+    const id = [ME,name].sort().join('___');
     channel = supabase.channel(id);
-    channel.on('postgres_changes',{event:'INSERT',table:'messages',filter:`chat_id=eq.${id}`},p=>showMsg(p.new)).subscribe();
-
-    supabase.from('messages').select().eq('chat_id',id).order('created_at').then(r=>r.data.forEach(showMsg));
+    channel.on('postgres_changes',{event:'INSERT',table:'messages',filter:`chat_id=eq.${id}`},p=>show(p.new)).subscribe();
+    
+    supabase.from('messages').select().eq('chat_id',id).order('created_at').then(r=>r.data.forEach(show));
   }
 
-  function backHome(){
+  window.back = () => {
     channel?.unsubscribe();
     document.getElementById('chat').classList.add('hidden');
     document.getElementById('home').classList.remove('hidden');
+  };
+
+  window.send = async () => {
+    const msg = document.getElementById('input');
+    const text = msg.value.trim();
+    if(!text) return;
+    const id = [ME,TARGET].sort().join('___');
+    await supabase.from('messages').insert({chat_id:id, sender:ME, text});
+    msg.value = '';
+  };
+
+  function show(m){
+    const mine = m.sender===ME;
+    const d = document.createElement('div');
+    d.className = `msg ${mine?'sent':'received'}`;
+    d.innerHTML = `${m.text}<div style="font-size:11px;margin-top:8px;opacity:0.7;">${new Date(m.created_at).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    document.getElementById('msgArea').appendChild(d);
+    document.getElementById('msgArea').scrollTop = 1e9;
   }
 
-  async function send(){
-    const msg = document.getElementById('msg').value.trim();
-    if(!msg) return;
-    const id = [me,to].sort().join('___');
-    await supabase.from('messages').insert({chat_id:id, sender:me, text:msg});
-    document.getElementById('msg').value='';
-  }
-
-  function showMsg(m){
-    const mine = m.sender===me;
-    const d=document.createElement('div');
-    d.className=`msg ${mine?'sent':'received'}`;
-    d.innerHTML = `${m.text}<div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'})}</div>`;
-    document.getElementById('messages').appendChild(d);
-    document.getElementById('messages').scrollTop = 1e9;
-  }
-
-  function voice(){
-    alert("Ovozli xabar tez kunda keladi!");
-  }
-
-  function toggleTheme(){
-    document.documentElement.dataset.theme = document.documentElement.dataset.theme==="dark"?"light":"dark";
-  }
-
-  // Auto login
   supabase.auth.onAuthStateChange(async (_,s)=>{
     if(s?.user){
       const {data} = await supabase.from('profiles').select('username').eq('id',s.user.id).single();
       if(data?.username){
-        me = data.username;
+        ME = data.username;
+        document.getElementById('myName').textContent = ME;
         document.getElementById('login').classList.add('hidden');
         document.getElementById('home').classList.remove('hidden');
-        document.getElementById('welcome').textContent = `Qaytganingizdan xursandmiz, ${me}!`;
-        loadChats();
+        loadAgents();
       } else {
         document.getElementById('login').classList.add('hidden');
-        document.getElementById('aiName').classList.remove('hidden');
-        setTimeout(getAINames,1000);
+        document.getElementById('username').classList.remove('hidden');
       }
     }
   });
