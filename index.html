@@ -117,14 +117,14 @@
     <!-- 4. Chat oynasi -->
     <div id="chatStep" class="hidden" style="display:flex; flex-direction:column; height:100dvh;">
       <div class="header">
-        <div class="back" onclick="backToUsers()">Back</div>
+        <div class="back" onclick="backToUsers()">←</div>
         <div id="chatWithName">Chat</div>
       </div>
       <div class="chat-body" id="messages"></div>
       <div class="input-bar">
         <input id="msgInput" placeholder="Xabar yozing..." 
                onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMsg();}" />
-        <button onclick="sendMsg()" class="send-btn">Heart</button>
+        <button onclick="sendMsg()" class="send-btn">❤️</button>
       </div>
     </div>
   </div>
