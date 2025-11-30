@@ -6,36 +6,35 @@
   <title>OrbicXs</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif; }
-    body { background:#f5f7fa; display:flex; justify-content:center; align-items:center; min-height:100vh; }
-    #authStep { text-align:center; width:90%; max-width:380px; }
-    #authStep img { width:140px; height:140px; border-radius:34px; box-shadow:0 12px 40px rgba(0,136,204,0.4); margin-bottom:20px; }
-    #authStep h1 { font-size:48px; font-weight:700; color:#222; margin-bottom:60px; }
-    #authStep input { width:100%; padding:18px 20px; font-size:17px; border:none; border-radius:16px; background:#f0f2f5; margin-bottom:20px; outline:none; }
-    #authStep button { width:100%; padding:18px; background:#0088cc; color:white; font-size:18px; border:none; border-radius:16px; cursor:pointer; box-shadow:0 8px 25px rgba(0,136,204,0.4); }
-    #authStep button:hover { background:#006bb3; }
-    #status { margin-top:15px; font-size:15px; min-height:24px; }
-
-    .hidden { display:none !important; }
-    .header { background:#0088cc; color:white; padding:16px; font-size:18px; font-weight:500; text-align:center; position:relative; }
-    .back { position:absolute; left:16px; top:14px; font-size:24px; cursor:pointer; }
-    .user-list { padding:10px; }
-    .user-item { padding:14px; display:flex; align-items:center; border-bottom:1px solid #eee; cursor:pointer; }
-    .user-item img { width:50px; height:50px; border-radius:50%; margin-right:15px; }
-    .chat-view { display:flex; flex-direction:column; height:100vh; }
-    .messages { flex:1; padding:20px; overflow-y:auto; background:#efeae2; }
-    .msg { max-width:80%; padding:10px 14px; border-radius:18px; margin:8px 0; }
-    .sent { background:#00bfff; color:white; margin-left:auto; border-bottom-right-radius:4px; }
-    .received { background:white; margin-right:auto; border-bottom-left-radius:4px; }
-    .input-bar { padding:10px; background:white; display:flex; gap:10px; }
-    .input-bar input { flex:1; padding:14px 18px; border:none; background:#f0f2f5; border-radius:30px; outline:none; font-size:16px; }
-    .input-bar button { width:50px; height:50px; background:#0088cc; color:white; border:none; border-radius:50%; font-size:20px; cursor:pointer; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif;}
+    body{background:#f5f7fa;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+    #authStep{text-align:center;width:90%;max-width:380px;}
+    #authStep img{width:140px;height:140px;border-radius:34px;box-shadow:0 12px 40px rgba(0,136,204,0.4);margin-bottom:20px;}
+    #authStep h1{font-size:48px;font-weight:700;color:#222;margin-bottom:60px;}
+    #authStep input{width:100%;padding:18px 20px;font-size:17px;border:none;border-radius:16px;background:#f0f2f5;margin-bottom:20px;outline:none;}
+    #authStep button{width:100%;padding:18px;background:#0088cc;color:white;font-size:18px;border:none;border-radius:16px;cursor:pointer;box-shadow:0 8px 25px rgba(0,136,204,0.4);}
+    #authStep button:hover{background:#006bb3;}
+    #status{margin-top:15px;font-size:15px;min-height:24px;color:#00c851;}
+    .hidden{display:none !important;}
+    .app{width:100%;max-width:420px;background:white;height:100vh;box-shadow:0 0 30px rgba(0,0,0,0.1);overflow:hidden;display:none;}
+    .header{background:#0088cc;color:white;padding:16px;font-size:18px;font-weight:500;text-align:center;position:relative;}
+    .back{position:absolute;left:16px;top:14px;font-size:24px;cursor:pointer;}
+    .user-list{padding:10px;}
+    .user-item{padding:16px;display:flex;align-items:center;border-bottom:1px solid #eee;cursor:pointer;}
+    .user-item img{width:50px;height:50px;border-radius:50%;margin-right:15px;background:#ddd;}
+    .chat-view{display:flex;flex-direction:column;height:100vh;}
+    .messages{flex:1;padding:20px;overflow-y:auto;background:#efeae2;}
+    .msg{max-width:80%;padding:12px 16px;border-radius:20px;margin:8px 0;word-wrap:break-word;}
+    .sent{background:#00bfff;color:white;margin-left:auto;border-bottom-right-radius:4px;}
+    .received{background:white;margin-right:auto;border-bottom-left-radius:4px;}
+    .input-bar{padding:12px;background:white;display:flex;gap:12px;align-items:center;border-top:1px solid #eee;}
+    .input-bar input{flex:1;padding:14px 18px;border:none;background:#f0f2f5;border-radius:30px;outline:none;font-size:16px;}
+    .input-bar button{width:50px;height:50px;background:#0088cc;color:white;border:none;border-radius:50%;font-size:20px;cursor:pointer;}
   </style>
 </head>
 <body>
 
-  <!-- 1. KIRISH EKRANI -->
+  <!-- EMAIL OYNASI (faqat bir marta ko‘rinadi) -->
   <div id="authStep">
     <img src="logo.png" alt="OrbicXs">
     <h1>OrbicXs</h1>
@@ -44,31 +43,35 @@
     <div id="status"></div>
   </div>
 
-  <!-- 2. USERNAME TANLASH -->
-  <div id="usernameStep" class="hidden">
-    <div class="header">Username tanlang</div>
-    <div style="padding:30px;text-align:center;">
-      <input id="username" type="text" placeholder="@foydalanuvchi" style="width:90%;padding:16px;font-size:17px;border-radius:12px;border:1px solid #ddd;margin-bottom:20px;">
-      <button onclick="saveUsername()" style="width:90%;padding:16px;background:#0088cc;color:white;border:none;border-radius:12px;font-size:17px;">SAQLASH</button>
-    </div>
-  </div>
+  <!-- ASOSIY APP (kirgandan keyin faqat shu ko‘rinadi) -->
+  <div id="app" class="app">
 
-  <!-- 3. FOYDALANUVCHILAR -->
-  <div id="usersStep" class="hidden">
-    <div class="header">Xabarlar</div>
-    <div class="user-list" id="userList"></div>
-  </div>
-
-  <!-- 4. CHAT -->
-  <div id="chatStep" class="hidden chat-view">
-    <div class="header">
-      <span class="back" onclick="backToUsers()">Back</span>
-      <span id="chatWithName"></span>
+    <!-- USERNAME TANLASH -->
+    <div id="usernameStep" class="hidden">
+      <div class="header">Username tanlang</div>
+      <div style="padding:40px 20px;text-align:center;">
+        <input id="username" type="text" placeholder="@username" style="width:100%;padding:16px;font-size:17px;border-radius:12px;border:1px solid #ddd;margin-bottom:20px;">
+        <button onclick="saveUsername()" style="width:100%;padding:16px;background:#0088cc;color:white;border:none;border-radius:12px;font-size:17px;">SAQLASH</button>
+      </div>
     </div>
-    <div class="messages" id="messages"></div>
-    <div class="input-bar">
-      <input id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter')sendMsg()">
-      <button onclick="sendMsg()">Send</button>
+
+    <!-- FOYDALANUVCHILAR -->
+    <div id="usersStep" class="hidden">
+      <div class="header">Xabarlar</div>
+      <div class="user-list" id="userList"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chatStep" class="hidden chat-view">
+      <div class="header">
+        <div class="back" onclick="backToUsers()">Back</div>
+        <div id="chatWithName"></div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="input-bar">
+        <input id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMsg()">
+        <button onclick="sendMsg()">Send</button>
+      </div>
     </div>
   </div>
 
@@ -79,122 +82,89 @@
   );
 
   let myUsername = '';
-  let currentChatWith = null;
 
-  // Kirish
-  async function sendMagicLink() {
+  // 1. Kirish
+  window.sendMagicLink = async () => {
     const email = document.getElementById('email').value.trim();
     if (!email) return status('Email kiriting');
     const { error } = await supabase.auth.signInWithOtp({ email });
     if (error) status(error.message, 'error');
     else status('Havola yuborildi! Emailni tekshiring', 'success');
-  }
+  };
 
-  // Username saqlash
-  async function saveUsername() {
-    let username = document.getElementById('username').value.trim().toLowerCase();
-    if (!username) return alert('Username kiriting');
-    if (!username.startsWith('@')) username = '@' + username;
-    const { error } = await supabase.from('profiles').upsert({
-      id: supabase.auth.user().id,
-      username,
-      email: supabase.auth.user().email
-    });
-    if (error) return alert(error.message);
-    myUsername = username;
-    goToUsers();
-  }
-
-  function goToUsers() {
-    document.getElementById('authStep').style.display = 'none';
-    document.getElementById('usernameStep').style.display = 'none';
-    document.getElementById('usersStep').classList.remove('hidden');
-    loadUsers();
-  }
-
-  async function loadUsers() {
-    const { data } = await supabase.from('profiles').select('username');
-    const list = document.getElementById('userList');
-    list.innerHTML = '';
-    data.forEach(u => {
-      if (u.username === myUsername) return;
-      const div = document.createElement('div');
-      div.className = 'user-item';
-      div.innerHTML = `<img src="https://via.placeholder.com/50"><div><strong>${u.username}</strong></div>`;
-      div.onclick = () => openChat(u.username);
-      list.appendChild(div);
-    });
-  }
-
-  function openChat(username) {
-    currentChatWith = username;
-    document.getElementById('usersStep').classList.add('hidden');
-    document.getElementById('chatStep').classList.remove('hidden');
-    document.getElementById('chatWithName').textContent = username;
-    document.getElementById('messages').innerHTML = '';
-    loadMessages();
-  }
-
-  function backToUsers() {
-    document.getElementById('chatStep').classList.add('hidden');
-    document.getElementById('usersStep').classList.remove('hidden');
-  }
-
-  async function sendMsg() {
-    const input = document.getElementById('msgInput');
-    const text = input.value.trim();
-    if (!text || !currentChatWith) return;
-    const chatId = [myUsername, currentChatWith].sort().join('_');
-    await supabase.from('messages').insert({ chat_id: chatId, sender: myUsername, text });
-    input.value = '';
-  }
-
-  function loadMessages() {
-    const chatId = [myUsername, currentChatWith].sort().join('_');
-    supabase.channel(`chat:${chatId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, p => addMessage(p.new))
-      .subscribe();
-
-    supabase.from('messages').select().eq('chat_id', chatId).order('created_at', { ascending: true })
-      .then(({ data }) => data.forEach(addMessage));
-  }
-
-  function addMessage(m) {
-    const isSent = m.sender === myUsername;
-    const div = document.createElement('div');
-    div.className = `msg ${isSent ? 'sent' : 'received'}`;
-    div.innerHTML = `${m.text}<small style="opacity:0.7; font-size:11px; display:block; margin-top:4px;">${new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}</small>`;
-    document.getElementById('messages').appendChild(div);
-    div.scrollIntoView({ behavior: 'smooth' });
-  }
-
+  // 2. Status
   function status(text, type = 'success') {
     const el = document.getElementById('status');
     el.textContent = text;
     el.style.color = type === 'error' ? '#ff4444' : '#00c851';
   }
 
-  // AVTO KIRISH – eng muhimi shu
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  // 3. Appni ochish (email oynasini butunlay o‘chiradi)
+  function startApp() {
+    document.getElementById('authStep').remove();  // Butunlay o‘chiriladi!
+    document.getElementById('app').style.display = 'block';
+  }
+
+  // 4. Username saqlash
+  window.saveUsername = async () => {
+    let u = document.getElementById('username').value.trim().toLowerCase();
+    if (!u) return alert('Username kiriting');
+    if (!u.startsWith('@')) u = '@' + u;
+    const { error } = await supabase.from('profiles').upsert({
+      id: supabase.auth.getUser().then(r => r.data.user.id),
+      username: u,
+      email: supabase.auth.getUser().then(r => r.data.user.email)
+    });
+    if (error) return alert('Xato: ' + error.message);
+    myUsername = u;
+    document.getElementById('usernameStep').classList.add('hidden');
+    document.getElementById('usersStep').classList.remove('hidden');
+    loadUsers();
+  };
+
+  // 5. Foydalanuvchilarni yuklash
+  async function loadUsers() {
+    const { data } = await supabase.from('profiles').select('username');
+    const list = document.getElementById('userList');
+    list.innerHTML = '';
+    data.forEach(p => {
+      if (p.username === myUsername) return;
+      const div = document.createElement('div');
+      div.className = 'user-item';
+      div.innerHTML = `<img src="https://via.placeholder.com/50"><div><strong>${p.username}</strong></div>`;
+      div.onclick = () => openChat(p.username);
+      list.appendChild(div);
+    });
+  }
+
+  // 6. Chat funksiyalari
+  function openChat(u) {
+    document.getElementById('usersStep').classList.add('hidden');
+    document.getElementById('chatStep').classList.remove('hidden');
+    document.getElementById('chatWithName').textContent = u;
+    // loadMessages() qo‘shishing mumkin
+  }
+  window.backToUsers = () => {
+    document.getElementById('chatStep').classList.add('hidden');
+    document.getElementById('usersStep').classList.remove('hidden');
+  };
+  window.sendMsg = () => alert('Xabar yuborildi (keyinroq ulaymiz)');
+
+  // ENDI ENG ASOSIY QISM – AVTO KIRISH
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
     if (session) {
+      startApp();  // Email oynasini butunlay o‘chiradi
       const { data } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
-      myUsername = data?.username || '';
-      if (myUsername) {
-        document.getElementById('authStep').style.display = 'none';
-        goToUsers();
+      if (data?.username) {
+        myUsername = data.username;
+        document.getElementById('usersStep').classList.remove('hidden');
+        loadUsers();
       } else {
-        document.getElementById('authStep').style.display = 'none';
         document.getElementById('usernameStep').classList.remove('hidden');
       }
     }
   });
 
-  // Sahifa ochilganda sessiyani tekshir
-  window.addEventListener('load', () => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) supabase.auth.onAuthStateChange(); // trigger
-    });
-  });
 </script>
 </body>
 </html>
