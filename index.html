@@ -8,227 +8,48 @@
   <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{
-      --p: #0088cc;
-      --a: #e74c3c;
-      --bg: #0f0f0f;
-      --card: #ffffff;
-      --text: #333;
-      --light: #f8f9fa;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root{
-        --bg: #000000;
-        --card: #111;
-        --text: #eee;
-        --light: #222;
-      }
-    }
+    :root{--p:#0088cc;--a:#e74c3c;--bg:#0f0f0f;--card:#fff;--text:#333;--light:#f8f9fa}
+    @media (prefers-color-scheme: dark){:root{--bg:#000;--card:#111;--text:#eee;--light:#222}}
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Roboto,sans-serif}
-    body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px;transition:background .3s}
-    .container{
-      width:100%;
-      max-width:480px;
-      height:95dvh;
-      max-height:900px;
-      background:var(--card);
-      border-radius:20px;
-      overflow:hidden;
-      box-shadow:0 20px 60px rgba(0,0,0,.5);
-      display:flex;
-      flex-direction:column;
-      position:relative;
-    }
-    @media (min-width:768px) {
-      .container{
-        max-width:420px;
-        height:92dvh;
-        border-radius:24px;
-      }
-    }
-    .header{
-      background:var(--p);
-      color:white;
-      padding:16px 20px;
-      font-weight:600;
-      font-size:20px;
-      text-align:center;
-      position:relative;
-      flex-shrink:0;
-    }
-    .header .icon{
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      font-size:28px;
-      cursor:pointer;
-      opacity:0.9;
-    }
-    .header .back{left:16px}
-    .header .logout{right:16px;font-size:22px}
-    .content{
-      padding:40px 30px;
-      text-align:center;
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:20px;
-    }
-    input,button{
-      width:100%;
-      padding:16px 20px;
-      border-radius:16px;
-      font-size:17px;
-      border:none;
-      outline:none;
-    }
-    input{
-      background:#f8f9fb;
-      border:1px solid #ddd;
-    }
-    button{
-      background:var(--p);
-      color:white;
-      font-weight:600;
-      cursor:pointer;
-      margin-top:10px;
-      transition:.2s;
-    }
+    body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px}
+    .container{width:100%;max-width:480px;height:95dvh;max-height:900px;background:var(--card);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;position:relative}
+    @media (min-width:768px){.container{max-width:420px;height:92dvh;border-radius:24px}}
+    .header{background:var(--p);color:white;padding:16px 20px;font-weight:600;font-size:20px;text-align:center;position:relative;flex-shrink:0}
+    .header .icon{position:absolute;top:50%;transform:translateY(-50%);font-size:28px;cursor:pointer;opacity:0.9}
+    .header .back{left:16px}.header .logout{right:16px;font-size:22px}
+    .content{padding:40px 30px;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px}
+    input,button{width:100%;padding:16px 20px;border-radius:16px;font-size:17px;border:none;outline:none}
+    input{background:#f8f9fb;border:1px solid #ddd}
+    button{background:var(--p);color:white;font-weight:600;cursor:pointer;margin-top:10px;transition:.2s}
     button:active{transform:scale(0.98)}
-    .status{font-size:15px;min-height:26px;margin-top:10px}
-    .success{color:#00c851}.error{color:#ff4444}
-    .search-bar{
-      padding:16px;
-      background:var(--card);
-      border-bottom:1px solid #eee;
-      flex-shrink:0;
-    }
-    #searchInput{
-      width:100%;
-      padding:14px 20px;
-      border-radius:30px;
-      background:#f0f2f5;
-      border:none;
-      font-size:16px;
-    }
-    #userList{
-      flex:1;
-      overflow-y:auto;
-      background:#fafafa;
-    }
-    .user-item{
-      padding:16px 20px;
-      display:flex;
-      align-items:center;
-      border-bottom:1px solid #eee;
-      cursor:pointer;
-      transition:.2s;
-    }
+    .status{font-size:15px;min-height:26px;margin-top:10px}.success{color:#00c851}.error{color:#ff4444}
+    .search-bar{padding:16px;background:var(--card);border-bottom:1px solid #eee;flex-shrink:0}
+    #searchInput{width:100%;padding:14px 20px;border-radius:30px;background:#f0f2f5;border:none;font-size:16px}
+    #userList{flex:1;overflow-y:auto;background:#fafafa}
+    .user-item{padding:16px 20px;display:flex;align-items:center;border-bottom:1px solid #eee;cursor:pointer;transition:.2s}
     .user-item:hover{background:#f1f3f5}
-    .user-item img{
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      margin-right:16px;
-    }
+    .user-item img{width:56px;height:56px;border-radius:50%;margin-right:16px}
     .info{flex:1}
     .name{font-weight:600;font-size:17px}
     .preview{font-size:14px;color:#666;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .empty{
-      text-align:center;
-      padding:120px 30px;
-      color:#888;
-      font-size:16px;
-      line-height:1.6;
-    }
-    .chat-body{
-      flex:1;
-      overflow-y:auto;
-      padding:20px;
-      background:#e8f5e8;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    .msg{
-      max-width:80%;
-      padding:12px 18px;
-      border-radius:20px;
-      word-wrap:break-word;
-      align-self:flex-start;
-      background:white;
-      position:relative;
-      box-shadow:0 1px 3px rgba(0,0,0,.1);
-    }
-    .sent{
-      align-self:flex-end;
-      background:#00bfff;
-      color:white;
-      border-bottom-right-radius:4px;
-    }
-    .received{
-      border-bottom-left-radius:4px;
-    }
-    .msg-time{
-      font-size:11px;
-      opacity:0.7;
-      margin-top:6px;
-      text-align:right;
-    }
-    .input-bar{
-      padding:12px 16px;
-      background:white;
-      border-top:1px solid #eee;
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    #msgInput{
-      flex:1;
-      padding:16px 20px;
-      background:#f0f2f5;
-      border-radius:30px;
-      font-size:16px;
-      border:none;
-      outline:none;
-    }
-    .send-btn{
-      width:56px;
-      height:56px;
-      background:var(--p);
-      color:white;
-      border:none;
-      border-radius:50%;
-      font-size:26px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 4px 15px rgba(0,136,204,.4);
-      transition:.2s;
-    }
-    .send-btn:active{
-      transform:scale(0.92);
-      background:#006699;
-    }
+    .empty{text-align:center;padding:120px 30px;color:#888;font-size:16px;line-height:1.6}
+    .chat-body{flex:1;overflow-y:auto;padding:20px;background:#e8f5e8;display:flex;flex-direction:column;gap:12px}
+    .msg{max-width:80%;padding:12px 18px;border-radius:20px;word-wrap:break-word;align-self:flex-start;background:white;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+    .sent{align-self:flex-end;background:#00bfff;color:white;border-bottom-right-radius:4px}
+    .received{border-bottom-left-radius:4px}
+    .msg-time{font-size:11px;opacity:0.7;margin-top:6px;text-align:right}
+    .input-bar{padding:12px 16px;background:white;border-top:1px solid #eee;display:flex;gap:12px;align-items:center}
+    #msgInput{flex:1;padding:16px 20px;background:#f0f2f5;border-radius:30px;font-size:16px;border:none;outline:none}
+    .send-btn{width:56px;height:56px;background:var(--p);color:white;border:none;border-radius:50%;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,136,204,.4);transition:.2s}
+    .send-btn:active{transform:scale(0.92);background:#006699}
     .hidden{display:none!important}
-    .online-count{
-      position:absolute;
-      top:12px;
-      right:70px;
-      background:#00c851;
-      color:white;
-      padding:5px 12px;
-      border-radius:20px;
-      font-size:13px;
-      font-weight:600;
-    }
+    .online-count{position:absolute;top:12px;right:70px;background:#00c851;color:white;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600}
+    .loading{text-align:center;padding:50px;color:#888}
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 1. Email kirish -->
+
     <div id="authStep">
       <div class="header">OrbicXs</div>
       <div class="content">
@@ -240,7 +61,6 @@
       </div>
     </div>
 
-    <!-- 2. Username tanlash -->
     <div id="usernameStep" class="hidden">
       <div class="header">Username tanlang</div>
       <div class="content">
@@ -250,31 +70,30 @@
       </div>
     </div>
 
-    <!-- 3. Chatlar ro‘yxati -->
     <div id="usersStep" class="hidden">
       <div class="header">
         Chatlar
         <span class="online-count" id="onlineCount">0 online</span>
-        <span class="logout icon" onclick="logout()" title="Chiqish">Exit</span>
+        <span class="logout icon" onclick="logout()">Exit</span>
       </div>
       <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Qidiruv...">
       </div>
-      <div id="userList"></div>
+      <div id="userList" class="loading">Yuklanmoqda...</div>
     </div>
 
-    <!-- 4. Chat oynasi -->
     <div id="chatStep" class="hidden">
       <div class="header">
-        <span class="icon back" onclick="backToUsers()">←</span>
+        <span class="icon back" onclick="backToUsers()">Back</span>
         <div id="chatWithName">Chat</div>
       </div>
       <div class="chat-body" id="messages"></div>
       <div class="input-bar">
         <input id="msgInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
-        <button onclick="sendMsg()" class="send-btn">❤️</button>
+        <button onclick="sendMsg()" class="send-btn">Send</button>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -283,6 +102,8 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null, myUsername = '', currentChatWith = null, channel = null;
+    let currentSearch = ''; // qidiruv saqlanadi
+
     const getChatId = (a,b) => [a,b].sort().join('___');
 
     function s(t,type='success',id='status'){
@@ -305,49 +126,72 @@
       if(!/^@[a-z0-9_]{3,30}$/.test(u))return s('Faqat kichik harf, raqam va _','error','usernameStatus');
       const{error}=await supabase.from('profiles').update({username:u}).eq('id',currentUser.id);
       if(error)return s(error.message||'Bu username band!','error','usernameStatus');
-      myUsername=u;showChatsList();
+      myUsername=u;
+      showChatsList();
     }
 
     async function init(){
       if("Notification" in window && Notification.permission==="default")Notification.requestPermission();
+
       const{data:{session}}=await supabase.auth.getSession();
-      if(session){
-        currentUser=session.user;
-        const{data}=await supabase.from('profiles').select('username').eq('id',currentUser.id).single();
-        myUsername=data?.username||'';
-        if(myUsername){
-          showChatsList();
-          updateOnlineCount();
-          setInterval(updateOnlineCount,10000);
-        }else{
-          document.getElementById('authStep').classList.add('hidden');
-          document.getElementById('usernameStep').classList.remove('hidden');
-        }
+      if(!session){
+        document.getElementById('authStep').classList.remove('hidden');
+        return;
       }
-      if(location.hash.includes('access_token'))history.replaceState(null,null,location.pathname);
+
+      currentUser=session.user;
+      const{data}=await supabase.from('profiles').select('username').eq('id',currentUser.id).single();
+      myUsername=data?.username||'';
+
+      if(!myUsername){
+        document.getElementById('authStep').classList.add('hidden');
+        document.getElementById('usernameStep').classList.remove('hidden');
+        return;
+      }
+
+      // Yangilanganda qidiruvni qayta tiklash
+      const savedSearch = sessionStorage.getItem('lastSearch') || '';
+      document.getElementById('searchInput').value = savedSearch;
+      currentSearch = savedSearch;
+
+      showChatsList();
+      updateOnlineCount();
+      setInterval(updateOnlineCount, 10000);
     }
 
     async function updateOnlineCount(){
       const{data}=await supabase.from('current_online').select('count').eq('id',1).single();
-      if(data)document.getElementById('onlineCount').textContent=(data.count||0)+' online';
+      if(data) document.getElementById('onlineCount').textContent = (data.count||0) + ' online';
     }
 
+    // Qidiruv ishlaydi + yangilanganda saqlanadi
     async function showChatsList(){
-      document.querySelectorAll('#authStep,#usernameStep').forEach(e=>e.classList.add('hidden'));
+      document.querySelectorAll('#authStep,#usernameStep,#chatStep').forEach(e=>e.classList.add('hidden'));
       document.getElementById('usersStep').classList.remove('hidden');
-      const search=document.getElementById('searchInput').value||'';
-      const{data:chats}=await supabase.rpc('get_my_chats',{search_term:search});
-      const list=document.getElementById('userList');
-      list.innerHTML=chats?.length?'' : `<div class="empty">Hozircha suhbat yo‘q<br><br>Boshlash uchun yangi odam qidiring</div>`;
-      chats?.forEach(c=>{
-        const d=document.createElement('div');d.className='user-item';
+
+      const searchInput = document.getElementById('searchInput');
+      currentSearch = searchInput.value.trim();
+      sessionStorage.setItem('lastSearch', currentSearch); // saqlash
+
+      const {data: chats, error} = await supabase.rpc('get_my_chats', {search_term: currentSearch});
+
+      const list = document.getElementById('userList');
+      if(error || !chats || chats.length===0){
+        list.innerHTML = `<div class="empty">Hech narsa topilmadi<br><small>${currentSearch?'"'+currentSearch+'"'+' bo‘yicha':''} suhbat yo‘q</small></div>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      chats.forEach(c=>{
+        const d=document.createElement('div');
+        d.className='user-item';
         d.innerHTML=`
-          <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.username)}&background=0088cc&color=fff&bold=true&length=2">
+          <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.username)}&background=0088cc&color=fff&bold=true">
           <div class="info">
             <div class="name">${c.username}</div>
-            <div class="preview">${c.last_sender_is_me?'Siz: ':''}${c.last_message?.slice(0,40)||''}...</div>
+            <div class="preview">${c.last_sender_is_me?'Siz: ':''}${c.last_message?.slice(0,40)||'Yangi chat'}</div>
           </div>`;
-        d.onclick=()=>openChat(c.partner_id,c.username);
+        d.onclick=()=>openChat(c.partner_id, c.username);
         list.appendChild(d);
       });
     }
@@ -357,17 +201,24 @@
       document.getElementById('usersStep').classList.add('hidden');
       document.getElementById('chatStep').classList.remove('hidden');
       document.getElementById('chatWithName').textContent=name;
-      document.getElementById('messages').innerHTML='<div style="text-align:center;padding:50px;color:#888">Yuklanmoqda...</div>';
-      if(channel)channel.unsubscribe();
-      const chatId=getChatId(currentUser.id,id);
-      channel=supabase.channel(`chat:${chatId}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`chat_id=eq.${chatId}`},p=>{
-        if(p.new.sender_id!==currentUser.id){
-          addMessage(p.new.text,false);
-          showNotification(name,p.new.text);
-        }
-      }).subscribe();
+      document.getElementById('messages').innerHTML='<div class="loading">Yuklanmoqda...</div>';
 
-      const{data}=await supabase.from('messages').select('text,sender_id').eq('chat_id',chatId).order('created_at',true);
+      if(channel) channel.unsubscribe();
+      const chatId=getChatId(currentUser.id,id);
+
+      channel=supabase.channel(`chat:${chatId}`)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`chat_id=eq.${chatId}`},p=>{
+          if(p.new.sender_id!==currentUser.id){
+            addMessage(p.new.text,false);
+          }
+        })
+        .subscribe();
+
+      const{data}=await supabase.from('messages')
+        .select('text,sender_id,created_at')
+        .eq('chat_id',chatId)
+        .order('created_at',true);
+
       document.getElementById('messages').innerHTML='';
       data.forEach(m=>addMessage(m.text, m.sender_id===currentUser.id));
     }
@@ -397,25 +248,26 @@
       currentChatWith=null;
       document.getElementById('chatStep').classList.add('hidden');
       document.getElementById('usersStep').classList.remove('hidden');
+      showChatsList(); // orqaga qaytganda ham qidiruv saqlanadi
     }
 
     async function logout(){
       await supabase.auth.signOut();
+      sessionStorage.clear();
       location.reload();
     }
 
-    function showNotification(s,t){
-      if(Notification.permission==="granted" && document.hidden){
-        new Notification(`Yangi xabar – ${s}`,{body:t.slice(0,80)+(t.length>80?'...':''),icon:'https://orbicxs.com/icon-192.png'});
-      }
-    }
-
-    document.getElementById('searchInput')?.addEventListener('input',()=>{
-      clearTimeout(window.st);
- window.st=setTimeout(showChatsList,300);
+    // Qidiruv real-time + saqlanadi
+    let searchTimeout;
+    document.getElementById('searchInput')?.addEventListener('input', ()=>{
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(showChatsList, 400);
     });
 
-    window.addEventListener('load',init);
+    window.addEventListener('load', init);
+    window.addEventListener('beforeunload', () => {
+      if(channel) channel.unsubscribe();
+    });
   </script>
 </body>
 </html>
