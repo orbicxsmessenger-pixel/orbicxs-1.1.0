@@ -39,6 +39,7 @@
     .input-bar button{width:44px;height:44px;border-radius:50%;background:#507ea8;color:#fff;border:none;cursor:pointer;}
     .hidden{display:none;}
     #profilePreview{width:120px;height:120px;border-radius:50%;object-fit:cover;margin:20px auto;display:block;border:4px solid #507ea8;}
+    .error-msg{color:red; font-size:14px; margin-top:10px;}
   </style>
 </head>
 <body>
@@ -64,6 +65,7 @@
       <button onclick="document.getElementById('avatarInput').click()">Rasm tanlash</button>
       <input id="username" type="text" placeholder="Ismingiz (masalan: Jamshid)">
       <button onclick="saveProfile()">SAQLASH VA KIRISH</button>
+      <p id="profileError" class="error-msg" style="display:none;"></p>
     </div>
   </div>
 
@@ -81,7 +83,7 @@
   <!-- 4. Chat oynasi -->
   <div id="chatStep" class="hidden chat-view">
     <div class="chat-header">
-      <span class="back" onclick="backToUsers()">Back</span>
+      <span class="back" onclick="backToUsers()">←</span>
       <img id="chatAvatar" src="">
       <div class="info">
         <div class="name" id="chatName"></div>
@@ -91,9 +93,9 @@
     <div class="messages" id="messages"></div>
     <div class="input-bar">
       <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="sendImage(event)">
-      <button onclick="document.getElementById('imgInput').click()" style="background:none;font-size:24px;">Attach</button>
+      <button onclick="document.getElementById('imgInput').click()" style="background:none;font-size:24px;">📎</button>
       <input id="msgInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter')sendMsg()">
-      <button onclick="sendMsg()">Send</button>
+      <button onclick="sendMsg()">➤</button>
     </div>
   </div>
 
@@ -105,14 +107,17 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A'
   );
 
-  let me = null;
+  let me = null;  // User ma'lumotlari
   let currentChat = null;
 
   // Magic link
   async function sendMagicLink() {
     const email = document.getElementById('email').value.trim();
-    if (!email) return status('Email kiriting');
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (!email) return status('Email kiriting', 'error');
+    const { error } = await supabase.auth.signInWithOtp({ 
+      email,
+      options: { emailRedirectTo: window.location.origin }
+    });
     if (error) return status(error.message, 'error');
     status('Havola yuborildi! Pochtangizni tekshiring');
   }
@@ -120,40 +125,66 @@
   // Avatar preview
   function previewAvatar(e) {
     const file = e.target.files[0];
-    if (file) document.getElementById('profilePreview').src = URL.createObjectURL(file);
+    if (file) {
+      document.getElementById('profilePreview').src = URL.createObjectURL(file);
+    }
   }
 
-  // Profil saqlash
+  // Profil saqlash (rasm yuklash bilan)
   async function saveProfile() {
     const username = document.getElementById('username').value.trim();
-    if (!username) return alert('Ism kiriting');
+    if (!username) return showProfileError('Ism kiriting');
+    if (!me) return showProfileError('Avval login qiling!');
+
     let avatar_url = null;
     const file = document.getElementById('avatarInput').files[0];
     if (file) {
-      const { data, error } = await supabase.storage
+      // Fayl nomini to'g'ri formatda: user_id/fayl_nomi
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${me.id}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(`${me.id}/${file.name}`, file, { upsert: true });
-      if (error) return alert('Rasm yuklanmadi: ' + error.message);
-      avatar_url = supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl;
+        .upload(`${me.id}/${fileName}`, file, { upsert: true });  // upsert: agar bor bo'lsa almashtir
+
+      if (uploadError) {
+        console.error('Upload xatosi:', uploadError);
+        return showProfileError(`Rasm yuklanmadi: ${uploadError.message}`);
+      }
+
+      // Public URL olish
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(`${me.id}/${fileName}`);
+      avatar_url = urlData.publicUrl;
     }
 
-    const { error } = await supabase.from('profiles').upsert({
+    // Profilni yangilash
+    const { error: profileError } = await supabase.from('profiles').upsert({
       id: me.id,
       username,
-      email: me.email,
+      email: me.user.email,
       avatar_url,
       last_seen: new Date().toISOString()
     });
 
-    if (error && error.code === '23505') return alert('Bu ism band!');
-    if (error) return alert(error.message);
+    if (profileError && profileError.code === '23505') return showProfileError('Bu ism band!');
+    if (profileError) return showProfileError(profileError.message);
 
+    // Sahifani qayta yuklash
     location.reload();
+  }
+
+  function showProfileError(msg) {
+    const el = document.getElementById('profileError');
+    el.textContent = msg;
+    el.style.display = 'block';
   }
 
   // Online status yangilash
   async function updateOnline() {
-    if (me) await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', me.id);
+    if (me) {
+      await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', me.id);
+    }
   }
   setInterval(updateOnline, 30000);
   window.addEventListener('beforeunload', updateOnline);
@@ -163,12 +194,13 @@
     Notification.requestPermission();
   }
 
-  // Auto login
+  // Auto login va user yuklash
   supabase.auth.getSession().then(async ({ data: { session } }) => {
     if (!session) return;
-    me = session.user;
-    const { data } = await supabase.from('profiles').select('*').eq('id', me.id).single();
-    if (!data || !data.username) {
+    me = session.user;  // Bu yerda me yuklanadi
+
+    const { data: profileData } = await supabase.from('profiles').select('*').eq('id', me.id).single();
+    if (!profileData || !profileData.username) {
       document.getElementById('authStep').classList.add('hidden');
       document.getElementById('profileStep').classList.remove('hidden');
     } else {
@@ -178,7 +210,7 @@
     }
   });
 
-  // Qidiruv
+  // Qidiruv (oldingi kabi)
   async function searchUsers(q) {
     const list = document.getElementById('userList');
     list.innerHTML = '';
@@ -201,7 +233,7 @@
       const div = document.createElement('div');
       div.className = 'user-item';
       div.innerHTML = `
-        <img src="${u.avatar_url || 'https://via.placeholder.com/50/507ea8/fff?text=' + u.username[0]}">
+        <img src="${u.avatar_url || `https://via.placeholder.com/50/507ea8/fff?text=${u.username[0]}`}">
         <div>
           <div class="name">${u.username}</div>
           <div class="last">${new Date(u.last_seen).toLocaleString('uz-UZ')}</div>
@@ -212,7 +244,7 @@
     });
   }
 
-  // Chat ochish
+  // Chat ochish (oldingi kabi)
   function openChat(username, avatar) {
     currentChat = username;
     document.getElementById('usersStep').classList.add('hidden');
@@ -224,54 +256,74 @@
     updateChatStatus(username);
   }
 
-  // Chat status
+  // Chat status (oldingi kabi)
   async function updateChatStatus(username) {
     const { data } = await supabase.from('profiles').select('last_seen').eq('username', username).single();
+    if (!data) return;
     const diff = (Date.now() - new Date(data.last_seen)) / 60000;
     const el = document.getElementById('chatStatus');
     el.textContent = diff < 3 ? 'online' : 'oxirgi marta ' + new Date(data.last_seen).toLocaleTimeString('uz');
     el.style.color = diff < 3 ? '#4caf50' : '#999';
   }
 
-  // Xabar jo'natish
+  // Xabar jo'natish (tuzatildi: myUsername ni to'g'ri olish)
   async function sendMsg() {
     const input = document.getElementById('msgInput');
     const text = input.value.trim();
-    if (!text || !currentChat) return;
-    const chatId = [me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username, currentChat].sort().join('_');
-    await supabase.from('messages').insert({ chat_id: chatId, sender: me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username, text });
+    if (!text || !currentChat || !me) return;
+    const myUsername = (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username;
+    const chatId = [myUsername, currentChat].sort().join('_');
+    const { error } = await supabase.from('messages').insert({ 
+      chat_id: chatId, 
+      sender: myUsername, 
+      text 
+    });
+    if (error) console.error('Xabar xatosi:', error);
     input.value = '';
   }
 
-  // Rasm jo'natish
+  // Rasm jo'natish (chatda, tuzatildi)
   async function sendImage(e) {
     const file = e.target.files[0];
-    if (!file || !currentChat) return;
-    const { data, error } = await supabase.storage.from('chat_images').upload(`${me.id}/${Date.now()}_${file.name}`, file);
-    if (error) return alert('Rasm yuklanmadi');
-    const url = supabase.storage.from('chat_images').getPublicUrl(data.path).data.publicUrl;
-    const chatId = [me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username, currentChat].sort().join('_');
+    if (!file || !currentChat || !me) return;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('chat_images')
+      .upload(`${me.id}/${fileName}`, file, { upsert: true });
+
+    if (uploadError) {
+      console.error('Chat rasm xatosi:', uploadError);
+      return alert(`Rasm yuklanmadi: ${uploadError.message}`);
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('chat_images')
+      .getPublicUrl(`${me.id}/${fileName}`);
+    const myUsername = (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username;
+    const chatId = [myUsername, currentChat].sort().join('_');
     await supabase.from('messages').insert({
       chat_id: chatId,
-      sender: me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username,
-      text: `<img src="${url}" style="max-width:100%;border-radius:12px;margin:5px 0;">`
+      sender: myUsername,
+      text: `<img src="${urlData.publicUrl}" style="max-width:100%;border-radius:12px;margin:5px 0;">`
     });
   }
 
-  // Xabarlarni yuklash + real-time
+  // Xabarlarni yuklash + real-time (oldingi kabi, lekin myUsername tuzatildi)
   async function loadMessages() {
-    const myName = (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username;
-    const chatId = [myName, currentChat].sort().join('_');
+    if (!me || !currentChat) return;
+    const myUsername = (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username;
+    const chatId = [myUsername, currentChat].sort().join('_');
 
     // Eski xabarlar
     const { data } = await supabase.from('messages').select().eq('chat_id', chatId).order('created_at');
-    data.forEach(m => addMessage(m, myName));
+    data.forEach(m => addMessage(m, myUsername));
 
     // Real-time
     supabase.channel('messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, p => {
-        addMessage(p.new, myName);
-        if (p.new.sender !== myName && Notification.permission === 'granted') {
+        addMessage(p.new, myUsername);
+        if (p.new.sender !== myUsername && Notification.permission === 'granted') {
           new Notification('Yangi xabar', { body: `${p.new.sender}: ${p.new.text.replace(/<[^>]*>/g, '')}` });
         }
       })
@@ -294,8 +346,9 @@
   }
 
   function status(text, type = '') {
-    document.getElementById('status').textContent = text;
-    document.getElementById('status').style.color = type === 'error' ? 'red' : 'green';
+    const el = document.getElementById('status');
+    el.textContent = text;
+    el.style.color = type === 'error' ? 'red' : 'green';
   }
 </script>
 </body>
