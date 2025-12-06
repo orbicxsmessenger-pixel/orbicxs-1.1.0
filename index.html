@@ -11,7 +11,7 @@
     body{background:#dbdbdb;display:flex;justify-content:center;min-height:100vh;align-items:center;}
     .app{width:100%;max-width:420px;height:100vh;background:#fff;display:flex;flex-direction:column;box-shadow:0 0 30px rgba(0,0,0,0.2);overflow:hidden;position:relative;}
     .header{background:#507ea8;color:#fff;padding:15px;font-size:19px;font-weight:500;text-align:center;position:relative;}
-    .back{position:absolute;left:15px;top:15px;font-size:24px;cursor:pointer;}
+    .back{position:absolute;left:15px;top:15px;font-size:24px;cursor:pointer;z-index:10;}
     .content{padding:30px;text-align:center;}
     input, button{width:100%;padding:14px;margin:10px 0;border-radius:8px;border:none;font-size:16px;}
     input{background:#f0f0f0;}
@@ -31,7 +31,7 @@
     .chat-header .info{flex:1;}
     .chat-header .status{font-size:13px;opacity:0.9;}
     .messages{flex:1;overflow-y:auto;padding:10px;background:#e5ddd5;display:flex;flex-direction:column;gap:8px;}
-    .msg{max-width:75%;padding:9px 13px;border-radius:18px;position:relative;word-wrap:break-word;align-self:flex-start;}
+    .msg{max-width:75%;padding:9px 13px;border-radius:18px;position:relative;word-wrap:break-word;}
     .sent{background:#d9fdd3;align-self:flex-end;border-bottom-right-radius:4px;}
     .received{background:#fff;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,0.1);}
     .msg-time{font-size:11px;color:#888;margin-top:4px;text-align:right;}
@@ -47,7 +47,6 @@
 </head>
 <body>
 <div class="app">
-
   <!-- 1. Kirish -->
   <div id="authStep">
     <div class="header">OrbicXs Global</div>
@@ -62,7 +61,7 @@
   <!-- 2. Profil yaratish -->
   <div id="profileStep" class="hidden">
     <div class="header">
-      <span class="back" onclick="backToAuth()">Back</span>
+      <span class="back" onclick="signOut()">Back</span>
       Profilni to'ldiring
     </div>
     <div class="content">
@@ -112,25 +111,35 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A'
   );
 
-  let me = null;
-  let currentChat = null;
+  let me = null;           // hozirgi foydalanuvchi (user object)
+  let myUsername = null;   // foydalanuvchi ismi
+  let currentChat = null;  // hozirgi chatdagi odam ismi
+
+  // Barcha oynalarni yashirish
+  function hideAll() {
+    document.querySelectorAll('#authStep, #profileStep, #usersStep, #chatStep')
+      .forEach(el => el.classList.add('hidden'));
+  }
+
+  // Status xabar
+  function status(text, color = '#4caf50') {
+    const el = document.getElementById('status');
+    el.textContent = text;
+    el.style.color = color;
+  }
 
   // Magic Link yuborish
   async function sendMagicLink() {
     const email = document.getElementById('email').value.trim();
     if (!email) return status('Email kiriting!', 'red');
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: location.href }
     });
+
     if (error) return status(error.message, 'red');
     status('Magic havola emailingizga yuborildi! Tekshiring', '#4caf50');
-  }
-
-  function status(text, color = '#4caf50') {
-    const el = document.getElementById('status');
-    el.textContent = text;
-    el.style.color = color;
   }
 
   // Avatar oldindan ko‘rish
@@ -142,8 +151,11 @@
   // Profil saqlash
   async function saveProfile() {
     const username = document.getElementById('username').value.trim();
-    if (!username || username.length < 2) return error('Ism kamida 2 harfdan iborat bo‘lsin!');
-    
+    if (!username || username.length < 2) {
+      document.getElementById('profileError').textContent = 'Ism kamida 2 harfdan iborat bo‘lsin!';
+      return;
+    }
+
     let avatar_url = null;
     const file = document.getElementById('avatarInput').files[0];
     if (file) {
@@ -162,40 +174,32 @@
       email: me.email,
       avatar_url,
       last_seen: new Date().toISOString()
-    }, { onConflict: 'id' });
+    });
 
-    if (error) return error('Xato: ' + error.message);
-    location.reload();
-  }
-
-  function error(msg) {
-    document.getElementById('profileError').textContent = msg;
-  }
-
-  // Avtomatik kirish
-  supabase.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session) return;
-    me = session.user;
-
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', me.id).single();
-    
-    if (!profile || !profile.username) {
-      hideAll();
-      document.getElementById('profileStep').classList.remove('hidden');
-    } else {
-      hideAll();
-      document.getElementById('usersStep').classList.remove('hidden');
-      updateOnline();
-      setInterval(updateOnline, 30000);
+    if (error) {
+      document.getElementById('profileError').textContent = 'Xato: ' + error.message;
+      return;
     }
-  });
 
-  function hideAll() {
-    document.querySelectorAll('#authStep, #profileStep, #usersStep, #chatStep').forEach(el => el.classList.add('hidden'));
+    // Muvaffaqiyatli saqlansa – avto o‘tish
+    myUsername = username;
+    hideAll();
+    document.getElementById('usersStep').classList.remove('hidden');
+    updateOnline();
+    setInterval(updateOnline, 30000);
   }
 
+  // Online statusni yangilash
   async function updateOnline() {
-    if (me) await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', me.id);
+    if (me) {
+      await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', me.id);
+    }
+  }
+
+  // Chiqish (agar kerak bo‘lsa)
+  async function signOut() {
+    await supabase.auth.signOut();
+    location.reload();
   }
 
   // Foydalanuvchilarni qidirish
@@ -205,8 +209,9 @@
       list.innerHTML = '<p style="text-align:center;padding:50px;color:#777;">Ism kiriting...</p>';
       return;
     }
+
     const { data } = await supabase.from('profiles')
-      .select('username,avatar_url,last_seen')
+      .select('username, avatar_url, last_seen')
       .ilike('username', `%${q}%`)
       .neq('id', me.id);
 
@@ -217,10 +222,11 @@
     }
 
     data.forEach(u => {
-      const div = document.createElement('div');
-      div.className = 'user-item';
       const diff = (Date.now() - new Date(u.last_seen)) / 60000;
       const status = diff < 3 ? '<span class="online">online</span>' : 'oxirgi faollik: ' + new Date(u.last_seen).toLocaleTimeString('uz');
+
+      const div = document.createElement('div');
+      div.className = 'user-item';
       div.innerHTML = `
         <img src="${u.avatar_url || 'https://via.placeholder.com/50/507ea8/fff?text=' + u.username[0]}">
         <div>
@@ -233,11 +239,7 @@
     });
   }
 
-  async function getMyUsername() {
-    const { data } = await supabase.from('profiles').select('username').eq('id', me.id).single();
-    return data?.username || 'User';
-  }
-
+  // Chat ochish
   function openChat(username, avatar) {
     currentChat = username;
     document.getElementById('chatName').textContent = username;
@@ -248,45 +250,62 @@
     loadMessages();
   }
 
+  // Xabar yuborish
   async function sendMsg() {
     const input = document.getElementById('msgInput');
     const text = input.value.trim();
     if (!text || !currentChat) return;
-    const myName = await getMyUsername();
-    const chatId = [myName, currentChat].sort().join('_');
-    await supabase.from('messages').insert({ chat_id: chatId, sender: myName, text });
+
+    const chatId = [myUsername, currentChat].sort().join('_');
+    await supabase.from('messages').insert({
+      chat_id: chatId,
+      sender: myUsername,
+      text
+    });
     input.value = '';
   }
 
+  // Rasm yuborish
   async function sendImage(e) {
     const file = e.target.files[0];
     if (!file || !currentChat) return;
-    const myName = await getMyUsername();
-    const chatId = [myName, currentChat].sort().join('_');
+
+    const chatId = [myUsername, currentChat].sort().join('_');
     const ext = file.name.split('.').pop();
     const path = `${me.id}/${Date.now()}.${ext}`;
     await supabase.storage.from('chat_images').upload(path, file);
     const { data } = supabase.storage.from('chat_images').getPublicUrl(path);
+
     await supabase.from('messages').insert({
       chat_id: chatId,
-      sender: myName,
+      sender: myUsername,
       text: `<img src="${data.publicUrl}" style="max-width:100%;border-radius:12px;margin:5px 0;">`
     });
   }
 
+  // Xabarlarni yuklash va real-time tinglash
   async function loadMessages() {
-    const myName = await getMyUsername();
-    const chatId = [myName, currentChat].sort().join('_');
-    const { data } = await supabase.from('messages').select().eq('chat_id', chatId).order('created_at');
-    data.forEach(m => addMessage(m, myName));
+    const chatId = [myUsername, currentChat].sort().join('_');
+    const { data } = await supabase.from('messages')
+      .select()
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: true });
 
-    supabase.channel('chat').on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}`
-    }, p => addMessage(p.new, myName)).subscribe();
+    data.forEach(m => addMessage(m));
+
+    // Real-time
+    supabase.channel('chat')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `chat_id=eq.${chatId}`
+      }, payload => addMessage(payload.new))
+      .subscribe();
   }
 
-  function addMessage(m, myName) {
-    const isMe = m.sender === myName;
+  function addMessage(m) {
+    const isMe = m.sender === myUsername;
     const div = document.createElement('div');
     div.className = `msg ${isMe ? 'sent' : 'received'}`;
     div.innerHTML = m.text + `<div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}</div>`;
@@ -295,15 +314,45 @@
   }
 
   function backToUsers() {
+    currentChat = null;
     hideAll();
     document.getElementById('usersStep').classList.remove('hidden');
-    currentChat = null;
   }
 
-  function backToAuth() {
-    hideAll();
-    document.getElementById('authStep').classList.remove('hidden');
-  }
+  // Eng muhim qism: Auth holatini doimiy kuzatish
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    me = session?.user ?? null;
+
+    if (!me) {
+      hideAll();
+      document.getElementById('authStep').classList.remove('hidden');
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', me.id)
+      .single();
+
+    if (!profile || !profile.username) {
+      // Profil hali yo‘q
+      hideAll();
+      document.getElementById('profileStep').classList.remove('hidden');
+    } else {
+      // Hammasi tayyor
+      myUsername = profile.username;
+      hideAll();
+      document.getElementById('usersStep').classList.remove('hidden');
+      updateOnline();
+      setInterval(updateOnline, 30000);
+    }
+  });
+
+  // Sahifa ochilganda ham bir marta tekshirish (ixtiyoriy)
+  window.addEventListener('load', () => {
+    supabase.auth.getSession(); // onAuthStateChange ni trigger qiladi
+  });
 </script>
 </body>
 </html>
