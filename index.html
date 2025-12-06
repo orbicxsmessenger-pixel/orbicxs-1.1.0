@@ -1,350 +1,302 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OrbicXs 1.0</title>
-  <meta name="description" content="OrbicXs" />
-  <link rel="manifest" href="manifest.json" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrbicXs</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif; }
-    body { background: #f0f2f5; display: flex; justify-content: center; min-height: 100vh; }
-    .app { width: 100%; max-width: 400px; background: white; height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-    .header { background: #0088cc; color: white; padding: 16px; font-weight: 500; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
-    .header .back { cursor: pointer; font-size: 20px; }
-    .search { padding: 12px; }
-    .search input { width: 100%; padding: 12px; border-radius: 25px; border: none; background: #f0f2f5; font-size: 16px; }
-    .user-list { flex: 1; overflow-y: auto; }
-    .user-item { padding: 12px 16px; display: flex; align-items: center; cursor: pointer; border-bottom: 1px solid #eee; }
-    .user-item:hover { background: #f5f5f5; }
-    .user-item img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; background: #ddd; }
-    .user-item .info { flex: 1; }
-    .user-item .name { font-weight: 500; }
-    .user-item .last { font-size: 13px; color: #666; }
-    .chat-view { flex: 1; display: flex; flex-direction: column; background: #efeae2; }
-    .chat-header { background: #0088cc; color: white; padding: 14px; display: flex; align-items: center; }
-    .chat-header img { width: 36px; height: 36px; border-radius: 50%; margin-right: 10px; }
-    .chat-header .info { flex: 1; }
-    .chat-header .name { font-weight: 500; }
-    .chat-header .status { font-size: 12px; }
-    .messages { flex: 1; overflow-y: auto; padding: 16px; }
-    .msg { max-width: 75%; padding: 10px 14px; border-radius: 18px; margin: 6px 0; word-wrap: break-word; position: relative; }
-    .sent { background: #dcf8c6; color: black; margin-left: auto; border-bottom-right-radius: 4px; }
-    .received { background: white; color: black; margin-right: auto; border-bottom-left-radius: 4px; }
-    .msg-time { font-size: 11px; color: #999; margin-top: 4px; text-align: right; }
-    .input-bar { display: flex; padding: 8px; background: white; border-top: 1px solid #eee; }
-    .input-bar .attach { width: 44px; height: 44px; background: #f0f2f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 8px; }
-    .input-bar input { flex: 1; padding: 12px 16px; border: none; background: #f0f2f5; border-radius: 25px; font-size: 16px; }
-    .input-bar button { width: 44px; height: 44px; background: #0088cc; color: white; border: none; border-radius: 50%; cursor: pointer; }
-    .hidden { display: none; }
-    .status { padding: 0 16px 8px; font-size: 14px; color: #00ff00; }
-    .error { color: #ff4444; }
-    /* Telegram-like improvements */
-    body { background: #e5ddd5 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGklEQVQYV2P8//8/AxMDEwMDAzMDEwMDAzMDEwN8fAMX8bV5ZwAAAABJRU5ErkJggg==') repeat; }
-    .app { max-width: 600px; box-shadow: none; border: 1px solid #ddd; }
-    .chat-view { background: #e5ddd5 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGklEQVQYV2P8//8/AxMDEwMDAzMDEwMDAzMDEwN8fAMX8bV5ZwAAAABJRU5ErkJggg==') repeat; }
-    .sent { background: #dcf8c6; }
-    .received { background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .header, .chat-header { background: #3390ec; }
-    .input-bar { background: #f0f0f0; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
+    body{background:#dbdbdb;display:flex;justify-content:center;min-height:100vh;}
+    .app{width:100%;max-width:420px;height:100vh;background:#fff;display:flex;flex-direction:column;box-shadow:0 0 30px rgba(0,0,0,0.2);overflow:hidden;}
+    .header{background:#507ea8;color:#fff;padding:15px;font-size:19px;font-weight:500;text-align:center;position:relative;}
+    .back{position:absolute;left:15px;top:15px;font-size:24px;cursor:pointer;}
+    .content{padding:30px;text-align:center;}
+    input, button{width:100%;padding:14px;margin:10px 0;border-radius:8px;border:none;font-size:16px;}
+    input{background:#f0f0f0;}
+    button{background:#507ea8;color:#fff;cursor:pointer;font-weight:500;}
+    .search{padding:12px;}
+    .search input{background:#e8e8e8;border-radius:30px;padding-left:40px;}
+    .user-list{flex:1;overflow-y:auto;background:#efeaee;}
+    .user-item{display:flex;align-items:center;padding:12px 16px;cursor:pointer;border-bottom:1px solid #ddd;}
+    .user-item:hover{background:#e0e0e0;}
+    .user-item img{width:50px;height:50px;border-radius:50%;margin-right:15px;}
+    .name{font-weight:500;font-size:17px;}
+    .last{font-size:13px;color:#666;margin-top:3px;}
+    .chat-view{background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAF0lEQVR4nGNkaP//PwMTAxMDE/8xA9MA8/8a1dMAAAAASUVORK5CYII=') repeat;flex:1;display:flex;flex-direction:column;}
+    .chat-header{background:#507ea8;color:#fff;padding:12px;display:flex;align-items:center;}
+    .chat-header img{width:40px;height:40px;border-radius:50%;margin:0 12px;}
+    .chat-header .info{flex:1;}
+    .chat-header .status{font-size:13px;opacity:0.9;}
+    .messages{flex:1;overflow-y:auto;padding:10px;background:#e5ddd5;}
+    .msg{max-width:75%;padding:9px 13px;border-radius:18px;margin:8px 0;position:relative;word-wrap:break-word;}
+    .sent{background:#d9fdd3;align-self:flex-end;border-bottom-right-radius:4px;}
+    .received{background:#fff;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,0.1);}
+    .msg-time{font-size:11px;color:#888;margin-top:4px;text-align:right;}
+    .input-bar{display:flex;align-items:center;padding:8px;background:#f0f0f0;}
+    .input-bar input{flex:1;padding:12px 16px;border-radius:30px;border:none;background:#fff;margin:0 8px;}
+    .input-bar button{width:44px;height:44px;border-radius:50%;background:#507ea8;color:#fff;border:none;cursor:pointer;}
+    .hidden{display:none;}
+    #profilePreview{width:120px;height:120px;border-radius:50%;object-fit:cover;margin:20px auto;display:block;border:4px solid #507ea8;}
   </style>
 </head>
 <body>
-  <div class="app">
-    <!-- EMAIL KIRISH -->
-    <div id="authStep">
-      <div class="header">OrbicXs 1.1.0</div>
-      <div class="content" style="padding:24px;">
-        <input id="email" type="email" placeholder="email@gmail.com" style="width:100%; padding:12px; margin-bottom:12px; border:1px solid #ddd; border-radius:4px;" />
-        <button onclick="sendMagicLink()" style="width:100%; padding:12px; background:#3390ec; color:white; border:none; border-radius:4px;">HAVOLA YUBORISH</button>
-        <p id="status" class="status"></p>
-      </div>
-    </div>
-    <!-- PROFIL SOZLASH -->
-    <div id="profileStep" class="hidden">
-      <div class="header">Profilni sozlang</div>
-      <div class="content" style="padding:24px; text-align:center;">
-        <img id="profilePreview" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; margin-bottom:12px;" />
-        <input type="file" id="profileImage" accept="image/*" style="display:none;" onchange="previewImage(event)" />
-        <button onclick="document.getElementById('profileImage').click()" style="padding:8px; background:#3390ec; color:white; border:none; border-radius:4px; margin-bottom:12px;">Rasm yuklash</button>
-        <input id="username" type="text" placeholder="Foydalanuvchi nomi (masalan: Jamshid)" style="width:100%; padding:12px; margin-bottom:12px; border:1px solid #ddd; border-radius:4px;" />
-        <button onclick="saveProfile()" style="width:100%; padding:12px; background:#3390ec; color:white; border:none; border-radius:4px;">SAQLASH</button>
-      </div>
-    </div>
-    <!-- FOYDALANUVCHILAR RO'YXATI (QIDIRUV ASOSIDA) -->
-    <div id="usersStep" class="hidden">
-      <div class="header">Xabarlar</div>
-      <div class="search">
-        <input type="text" placeholder="Foydalanuvchi qidirish..." oninput="searchUsers(this.value)" />
-      </div>
-      <div class="user-list" id="userList"></div>
-    </div>
-    <!-- CHAT EKRANI -->
-    <div id="chatStep" class="hidden chat-view">
-      <div class="chat-header">
-        <div class="back" onclick="backToUsers()">←</div>
-        <img id="chatWithAvatar" src="https://via.placeholder.com/36" />
-        <div class="info">
-          <div class="name" id="chatWithName"></div>
-          <div class="status" id="chatWithStatus">offline</div>
-        </div>
-      </div>
-      <div class="messages" id="messages"></div>
-      <div class="input-bar">
-        <div class="attach" onclick="document.getElementById('fileInput').click()">+</div>
-        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="uploadImage(event)" />
-        <input id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMsg()" />
-        <button onclick="sendMsg()">➤</button>
-      </div>
+<div class="app">
+
+  <!-- 1. Email kirish -->
+  <div id="authStep">
+    <div class="header">OrbicXs</div>
+    <div class="content">
+      <h2 style="margin-bottom:20px;color:#333;">Xush kelibsiz!</h2>
+      <input id="email" type="email" placeholder="email@gmail.com">
+      <button onclick="sendMagicLink()">HAVOLA YUBORISH</button>
+      <p id="status" style="margin-top:15px;"></p>
     </div>
   </div>
-  <script>
-    const SUPABASE_URL = 'https://acyozmmvrtvevbssoghh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let user = null;
-    let currentChatWith = null;
-    let myUsername = '';
-    let myAvatar = '';
-    let subscriptions = {};
 
-    // HAVOLA YUBORISH
-    window.sendMagicLink = async () => {
-      const email = document.getElementById('email').value.trim();
-      if (!email) return status("Email kiriting!", "error");
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: 'https://orbicxs.com' }
-      });
-      if (error) return status(error.message, "error");
-      status("Havola yuborildi! Emailni tekshiring.");
-    };
+  <!-- 2. Profil sozlash -->
+  <div id="profileStep" class="hidden">
+    <div class="header">Profilni to'ldiring</div>
+    <div class="content">
+      <img id="profilePreview" src="https://via.placeholder.com/120/507ea8/ffffff?text=+" alt="Avatar">
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="previewAvatar(event)">
+      <button onclick="document.getElementById('avatarInput').click()">Rasm tanlash</button>
+      <input id="username" type="text" placeholder="Ismingiz (masalan: Jamshid)">
+      <button onclick="saveProfile()">SAQLASH VA KIRISH</button>
+    </div>
+  </div>
 
-    // AVTO KIRISH
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        user = session.user;
-        const { data } = await supabase.from('profiles').select('username, avatar_url, last_seen').eq('id', user.id).single();
-        if (data?.username) {
-          myUsername = data.username;
-          myAvatar = data.avatar_url || 'https://via.placeholder.com/40';
-          updateLastSeen();
-          showUsersList();
-          subscribeToOnlineStatuses();
-          requestNotificationPermission();
-        } else {
-          document.getElementById('authStep').classList.add('hidden');
-          document.getElementById('profileStep').classList.remove('hidden');
-        }
-      }
-    })();
+  <!-- 3. Qidiruv sahifasi -->
+  <div id="usersStep" class="hidden">
+    <div class="header">Xabarlar</div>
+    <div class="search">
+      <input type="text" placeholder="Ism bo'yicha qidirish..." oninput="searchUsers(this.value)">
+    </div>
+    <div class="user-list" id="userList">
+      <p style="text-align:center;padding:30px;color:#777;">Qidiruv orqali odam toping</p>
+    </div>
+  </div>
 
-    // RASM OLDINDAN KO'RISH
-    window.previewImage = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => document.getElementById('profilePreview').src = e.target.result;
-        reader.readAsDataURL(file);
-      }
-    };
+  <!-- 4. Chat oynasi -->
+  <div id="chatStep" class="hidden chat-view">
+    <div class="chat-header">
+      <span class="back" onclick="backToUsers()">Back</span>
+      <img id="chatAvatar" src="">
+      <div class="info">
+        <div class="name" id="chatName"></div>
+        <div class="status" id="chatStatus">offline</div>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="input-bar">
+      <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="sendImage(event)">
+      <button onclick="document.getElementById('imgInput').click()" style="background:none;font-size:24px;">Attach</button>
+      <input id="msgInput" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">Send</button>
+    </div>
+  </div>
 
-    // PROFIL SAQLASH (USERNAME VA RASM)
-    window.saveProfile = async () => {
-      const username = document.getElementById('username').value.trim();
-      if (!username) return alert("Nom kiriting!");
-      let avatar_url = null;
-      const file = document.getElementById('profileImage').files[0];
-      if (file) {
-        const { data, error } = await supabase.storage.from('avatars').upload(`${user.id}/${file.name}`, file);
-        if (error) return alert("Rasm yuklashda xato!");
-        avatar_url = `${SUPABASE_URL}/storage/v1/object/public/avatars/${data.path}`;
-      }
-      const { error } = await supabase.from('profiles').upsert({
-        id: user.id,
-        username,
-        email: user.email,
-        avatar_url,
-        last_seen: new Date().toISOString()
-      });
-      if (error && error.code === '23505') return alert("Bu nom band!");
-      if (error) return alert(error.message);
-      myUsername = username;
-      myAvatar = avatar_url || 'https://via.placeholder.com/40';
-      showUsersList();
-      subscribeToOnlineStatuses();
-      requestNotificationPermission();
-    };
+</div>
 
-    // LAST_SEEN YANGILASH
-    async function updateLastSeen() {
-      await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', user.id);
-    }
-    setInterval(updateLastSeen, 30000); // Har 30 sekundda yangilash
+<script>
+  const supabase = window.supabase.createClient(
+    'https://acyozmmvrtvevbssoghh.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjeW96bW12cnR2ZXZic3NvZ2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODg4MzQsImV4cCI6MjA3OTQ2NDgzNH0.XGtuvV8iTmBd1m6AjZhvkWqg-2kE83Yh_6oqvY2kQ5A'
+  );
 
-    // ONLINE STATUSLARGA OBUNA
-    function subscribeToOnlineStatuses() {
-      supabase
-        .channel('profiles')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, payload => {
-          if (currentChatWith === payload.new.username) {
-            updateOnlineStatus(payload.new.last_seen);
-          }
-        })
-        .subscribe();
+  let me = null;
+  let currentChat = null;
+
+  // Magic link
+  async function sendMagicLink() {
+    const email = document.getElementById('email').value.trim();
+    if (!email) return status('Email kiriting');
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) return status(error.message, 'error');
+    status('Havola yuborildi! Pochtangizni tekshiring');
+  }
+
+  // Avatar preview
+  function previewAvatar(e) {
+    const file = e.target.files[0];
+    if (file) document.getElementById('profilePreview').src = URL.createObjectURL(file);
+  }
+
+  // Profil saqlash
+  async function saveProfile() {
+    const username = document.getElementById('username').value.trim();
+    if (!username) return alert('Ism kiriting');
+    let avatar_url = null;
+    const file = document.getElementById('avatarInput').files[0];
+    if (file) {
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(`${me.id}/${file.name}`, file, { upsert: true });
+      if (error) return alert('Rasm yuklanmadi: ' + error.message);
+      avatar_url = supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl;
     }
 
-    // ONLINE STATUSNI YANGILASH
-    function updateOnlineStatus(lastSeen) {
-      const now = new Date();
-      const last = new Date(lastSeen);
-      const diff = (now - last) / 1000 / 60; // minutlar
-      const statusEl = document.getElementById('chatWithStatus');
-      statusEl.innerText = diff < 5 ? 'online' : `oxirgi marta: ${last.toLocaleString('uz')}`;
-      statusEl.style.color = diff < 5 ? '#00ff00' : '#999';
-    }
+    const { error } = await supabase.from('profiles').upsert({
+      id: me.id,
+      username,
+      email: me.email,
+      avatar_url,
+      last_seen: new Date().toISOString()
+    });
 
-    // BILDIRISHNOMA RUXSATI
-    function requestNotificationPermission() {
-      if (Notification.permission !== 'granted') {
-        Notification.requestPermission();
-      }
-    }
+    if (error && error.code === '23505') return alert('Bu ism band!');
+    if (error) return alert(error.message);
 
-    // BILDIRISHNOMA YUBORISH
-    function showNotification(sender, text) {
-      if (Notification.permission === 'granted') {
-        new Notification(`Yangi xabar: ${sender}`, { body: text });
-      }
-    }
+    location.reload();
+  }
 
-    // FOYDALANUVCHILAR RO'YXATI (BO'SH, FAQAT QIDIRUVDA KO'RSATILADI)
-    function showUsersList() {
-      document.getElementById('profileStep').classList.add('hidden');
+  // Online status yangilash
+  async function updateOnline() {
+    if (me) await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', me.id);
+  }
+  setInterval(updateOnline, 30000);
+  window.addEventListener('beforeunload', updateOnline);
+
+  // Notification ruxsati
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  // Auto login
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) return;
+    me = session.user;
+    const { data } = await supabase.from('profiles').select('*').eq('id', me.id).single();
+    if (!data || !data.username) {
+      document.getElementById('authStep').classList.add('hidden');
+      document.getElementById('profileStep').classList.remove('hidden');
+    } else {
+      document.getElementById('authStep').classList.add('hidden');
       document.getElementById('usersStep').classList.remove('hidden');
-      const list = document.getElementById('userList');
-      list.innerHTML = '<p style="padding:16px; text-align:center; color:#666;">Foydalanuvchi qidirish uchun yuqoridagi maydonni ishlating</p>';
+      updateOnline();
+    }
+  });
+
+  // Qidiruv
+  async function searchUsers(q) {
+    const list = document.getElementById('userList');
+    list.innerHTML = '';
+    if (q.length < 2) {
+      list.innerHTML = '<p style="text-align:center;padding:30px;color:#777;">Ism kiriting...</p>';
+      return;
+    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('username,avatar_url,last_seen')
+      .ilike('username', `%${q}%`)
+      .neq('id', me.id);
+
+    if (data.length === 0) {
+      list.innerHTML = '<p style="text-align:center;padding:30px;color:#777;">Hech kim topilmadi</p>';
+      return;
     }
 
-    // QIDIRUV
-    window.searchUsers = async (query) => {
-      const list = document.getElementById('userList');
-      list.innerHTML = '';
-      if (!query) return showUsersList();
-      const { data } = await supabase.from('profiles').select('username, avatar_url, last_seen').ilike('username', `%${query}%`);
-      data.forEach(u => {
-        if (u.username === myUsername) return;
-        const div = document.createElement('div');
-        div.className = 'user-item';
-        div.innerHTML = `
-          <img src="${u.avatar_url || 'https://via.placeholder.com/40'}" />
-          <div class="info">
-            <div class="name">${u.username}</div>
-            <div class="last">Oxirgi faollik: ${new Date(u.last_seen).toLocaleString('uz')}</div>
-          </div>
-        `;
-        div.onclick = () => openChat(u.username, u.avatar_url, u.last_seen);
-        list.appendChild(div);
-      });
-    };
-
-    // CHAT OCHISH
-    function openChat(username, avatar, lastSeen) {
-      currentChatWith = username;
-      document.getElementById('usersStep').classList.add('hidden');
-      document.getElementById('chatStep').classList.remove('hidden');
-      document.getElementById('chatWithName').innerText = username;
-      document.getElementById('chatWithAvatar').src = avatar || 'https://via.placeholder.com/36';
-      updateOnlineStatus(lastSeen);
-      document.getElementById('messages').innerHTML = '';
-      loadMessages();
-    }
-
-    // ORQAGA
-    window.backToUsers = () => {
-      if (subscriptions[currentChatWith]) {
-        supabase.removeChannel(subscriptions[currentChatWith]);
-        delete subscriptions[currentChatWith];
-      }
-      document.getElementById('chatStep').classList.add('hidden');
-      document.getElementById('usersStep').classList.remove('hidden');
-      currentChatWith = null;
-    };
-
-    // XABAR YUBORISH
-    window.sendMsg = async () => {
-      const msg = document.getElementById('msgInput').value.trim();
-      if (!msg || !currentChatWith) return;
-      const chatId = [myUsername, currentChatWith].sort().join('_');
-      await supabase.from('messages').insert({
-        chat_id: chatId,
-        sender: myUsername,
-        text: msg
-      });
-      document.getElementById('msgInput').value = '';
-      updateLastSeen();
-    };
-
-    // XABARLAR YUKLASH
-    function loadMessages() {
-      if (!currentChatWith) return;
-      const chatId = [myUsername, currentChatWith].sort().join('_');
-      // Real-time
-      const channel = supabase
-        .channel(`chat:${chatId}`)
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, payload => {
-          addMessage(payload.new);
-          if (payload.new.sender !== myUsername) {
-            showNotification(payload.new.sender, payload.new.text);
-          }
-        })
-        .subscribe();
-      subscriptions[currentChatWith] = channel;
-      // Eski xabarlar
-      supabase.from('messages')
-        .select()
-        .eq('chat_id', chatId)
-        .order('created_at', { ascending: true })
-        .then(({ data }) => data.forEach(addMessage));
-    }
-
-    // XABAR QO'SHISH
-    function addMessage(m) {
-      const isSent = m.sender === myUsername;
+    data.forEach(u => {
       const div = document.createElement('div');
-      div.className = `msg ${isSent ? 'sent' : 'received'}`;
+      div.className = 'user-item';
       div.innerHTML = `
-        ${m.text}
-        <div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz', {hour: '2-digit', minute: '2-digit'})}</div>
+        <img src="${u.avatar_url || 'https://via.placeholder.com/50/507ea8/fff?text=' + u.username[0]}">
+        <div>
+          <div class="name">${u.username}</div>
+          <div class="last">${new Date(u.last_seen).toLocaleString('uz-UZ')}</div>
+        </div>
       `;
-      document.getElementById('messages').appendChild(div);
-      div.scrollIntoView({ behavior: 'smooth' });
-    }
+      div.onclick = () => openChat(u.username, u.avatar_url || '');
+      list.appendChild(div);
+    });
+  }
 
-    // RASM YUKLASH (CHATDA)
-    window.uploadImage = async (event) => {
-      const file = event.target.files[0];
-      if (!file || !currentChatWith) return;
-      const { data, error } = await supabase.storage.from('chat_images').upload(`${user.id}/${file.name}`, file);
-      if (error) return alert("Rasm yuklashda xato!");
-      const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/chat_images/${data.path}`;
-      const chatId = [myUsername, currentChatWith].sort().join('_');
-      await supabase.from('messages').insert({
-        chat_id: chatId,
-        sender: myUsername,
-        text: `<img src="${imageUrl}" style="max-width:100%; border-radius:8px;" />`
-      });
-    };
+  // Chat ochish
+  function openChat(username, avatar) {
+    currentChat = username;
+    document.getElementById('usersStep').classList.add('hidden');
+    document.getElementById('chatStep').classList.remove('hidden');
+    document.getElementById('chatName').textContent = username;
+    document.getElementById('chatAvatar').src = avatar || 'https://via.placeholder.com/40';
+    document.getElementById('messages').innerHTML = '';
+    loadMessages();
+    updateChatStatus(username);
+  }
 
-    window.logout = () => supabase.auth.signOut().then(() => location.reload());
-    function status(text, type = "status") {
-      const el = document.getElementById('status');
-      el.innerText = text;
-      el.className = type;
-    }
-  </script>
+  // Chat status
+  async function updateChatStatus(username) {
+    const { data } = await supabase.from('profiles').select('last_seen').eq('username', username).single();
+    const diff = (Date.now() - new Date(data.last_seen)) / 60000;
+    const el = document.getElementById('chatStatus');
+    el.textContent = diff < 3 ? 'online' : 'oxirgi marta ' + new Date(data.last_seen).toLocaleTimeString('uz');
+    el.style.color = diff < 3 ? '#4caf50' : '#999';
+  }
+
+  // Xabar jo'natish
+  async function sendMsg() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text || !currentChat) return;
+    const chatId = [me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username, currentChat].sort().join('_');
+    await supabase.from('messages').insert({ chat_id: chatId, sender: me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username, text });
+    input.value = '';
+  }
+
+  // Rasm jo'natish
+  async function sendImage(e) {
+    const file = e.target.files[0];
+    if (!file || !currentChat) return;
+    const { data, error } = await supabase.storage.from('chat_images').upload(`${me.id}/${Date.now()}_${file.name}`, file);
+    if (error) return alert('Rasm yuklanmadi');
+    const url = supabase.storage.from('chat_images').getPublicUrl(data.path).data.publicUrl;
+    const chatId = [me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username, currentChat].sort().join('_');
+    await supabase.from('messages').insert({
+      chat_id: chatId,
+      sender: me.user_metadata.username || (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username,
+      text: `<img src="${url}" style="max-width:100%;border-radius:12px;margin:5px 0;">`
+    });
+  }
+
+  // Xabarlarni yuklash + real-time
+  async function loadMessages() {
+    const myName = (await supabase.from('profiles').select('username').eq('id', me.id).single()).data.username;
+    const chatId = [myName, currentChat].sort().join('_');
+
+    // Eski xabarlar
+    const { data } = await supabase.from('messages').select().eq('chat_id', chatId).order('created_at');
+    data.forEach(m => addMessage(m, myName));
+
+    // Real-time
+    supabase.channel('messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, p => {
+        addMessage(p.new, myName);
+        if (p.new.sender !== myName && Notification.permission === 'granted') {
+          new Notification('Yangi xabar', { body: `${p.new.sender}: ${p.new.text.replace(/<[^>]*>/g, '')}` });
+        }
+      })
+      .subscribe();
+  }
+
+  function addMessage(m, myName) {
+    const isMe = m.sender === myName;
+    const div = document.createElement('div');
+    div.className = `msg ${isMe ? 'sent' : 'received'}`;
+    div.innerHTML = m.text + `<div class="msg-time">${new Date(m.created_at).toLocaleTimeString('uz', {hour:'2-digit', minute:'2-digit'})}</div>`;
+    document.getElementById('messages').appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function backToUsers() {
+    document.getElementById('chatStep').classList.add('hidden');
+    document.getElementById('usersStep').classList.remove('hidden');
+    currentChat = null;
+  }
+
+  function status(text, type = '') {
+    document.getElementById('status').textContent = text;
+    document.getElementById('status').style.color = type === 'error' ? 'red' : 'green';
+  }
+</script>
 </body>
 </html>
