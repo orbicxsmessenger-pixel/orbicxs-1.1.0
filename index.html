@@ -47,7 +47,7 @@
   <div class="app">
     <!-- EMAIL KIRISH -->
     <div id="authStep">
-      <div class="header">OrbicXs 1.1.0</div>
+      <div class="header">OrbicXs 1.0</div>
       <div class="content" style="padding:24px;">
         <input id="email" type="email" placeholder="email@gmail.com" />
         <button onclick="sendMagicLink()">HAVOLA YUBORISH</button>
@@ -76,7 +76,7 @@
     <!-- CHAT EKRANI -->
     <div id="chatStep" class="hidden chat-view">
       <div class="chat-header">
-        <div class="back" onclick="backToUsers()">Back</div>
+        <div class="back" onclick="backToUsers()">⬅️</div>
         <img src="https://via.placeholder.com/36" />
         <div class="info">
           <div class="name" id="chatWithName"></div>
@@ -85,10 +85,10 @@
       </div>
       <div class="messages" id="messages"></div>
       <div class="input-bar">
-        <div class="attach" onclick="document.getElementById('fileInput').click()">Attach</div>
+        <div class="attach" onclick="document.getElementById('fileInput').click()">📎</div>
         <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="uploadImage(event)" />
         <input id="msgInput" placeholder="Xabar..." onkeypress="if(event.key==='Enter') sendMsg()" />
-        <button onclick="sendMsg()">Send</button>
+        <button onclick="sendMsg()">↗️</button>
       </div>
     </div>
   </div>
